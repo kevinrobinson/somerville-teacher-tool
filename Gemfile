@@ -64,6 +64,7 @@ end
 
 # Auth
 gem 'devise'
+gem 'devise_ldap_authenticatable'
 
 # Better seeds
 gem 'seedbank'
