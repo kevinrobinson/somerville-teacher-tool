@@ -1,14 +1,26 @@
 language: ruby
 rvm:
-- ruby-2.1.6
+  - 2.2.3
+
+sudo: required
+
+services:
+  - postgresql
+  - docker
+
 branches:
   only:
     - master
-install: bundle install --retry=3
+
+install:
+  - bundle install --retry=3
+  - docker-compose run webpack npm run build:dev
+
 script:
-- bundle exec rake db:create db:migrate DATABASE_URL=postgres://localhost/homeroom_test
-- bundle exec rspec spec
-- bundle exec teaspoon
+  - bundle exec rake db:create db:migrate DATABASE_URL=postgres://localhost/homeroom_test
+  - bundle exec rspec spec
+  - bundle exec teaspoon
+
 env:
   global:
   - secure: ItIXJnhdTGduR/w2xNNFLauu9CWWzwX/QdTaXXjBTBI7inCNuRUWdCuBQbwH0LJFGeAvwRUURdrtMF+ICIAQR0Lp6eYkXwhzldpt5jKMGkXg0ZnDrY4wvYY98Jlt/sXatxIilsjlEDQ8LXMHprKw+4hhD1Bnz073ua2pN4H7550=
@@ -18,5 +30,8 @@ env:
   - secure: jSWLU8N9ui5BZ7PmWmY08BrrOx1BN1IEdYhrTnv5RDWMbUyGTu62hyXOseKMy1b+URaWSiklkxLBK0uVm1oSYf/MYiDhNwFTqPn8eH7AK7MJcxSOaJ4ce0eCEeTy56Wnbljjt0jYeGMFS05uBGhUT82vYvXq4l4h7pCORJWXaPA=
   - secure: Rl1K2PFb0CwnwbFGeA2bRxPSEO4NZEaJ9Z4iADU2/hQ9qUL7GzNuYsuvvubT58K52awa5kOLSFKp0HKyygifrV4PgUG8ebr4tlK1x/kxltaoI92220yZTR2scQWULpjOdddNPK/E2JNbePRhkhstUA8ZDMhbqYGJ17WOR0syFow=
   - secure: UrWfCKjit5P3QVJDIJPf1lzsY0e6qWEABVhfzaQvH6xwjaTlmhk44MGv/Yy9YywSY1qjTeERwvmDe7d5Zy32heJxKb8+ERcIPX0BPCO3l5mHnV1a1DgXsNaiMCekCgA5Ip1FFqgCIpG6MRuFPj/gn9j+pR6Exjeoi2Lg67kTFfs=
+
 notifications:
   webhooks: http://project-monitor.codeforamerica.org/projects/somerville-teacher-tool/status
+  slack:
+    secure: Px/yHNMrtJQBT9eQ6cUaT/T0YpZf6Mu/RxKWyB7NUwBDj7I1/tH5aZUgB+q2dVL6J29Q5WmxWQXgJz1nMsaH7rPyEXmO2BGI/sdDd5cbSZXSfhS0Uxax9fquPAhBh3tuGexOMBGOktSc5g7fGK2pWQ3CMoT/GkBTwnAV7dSmQxxwLE7VxvLWdTzGWoCSsvkExwcnsosx3psl2gthV0jV4CFzpY9LSPaaQA9lpCHp9yp3JcJQ/XRKUdAcjI5I+A0Mbt75g5l/MEIITjaHs2MUwgz3pAM4b2ma+9SkUNxoH35DWes15I42pY3NG/MCweHIiXWxhUuBEdellY40DOFciH8CQ1keszOG5lJwDzc3Vj+sAHn/cBCRLgUJR2Z4jLdX5/l6knjZ/dHIl3jjB+fDMjclPIoUeJW5EAlWhjt1uMcpCMyJPUnpwKhC8on4qP+DYWVhoAGbrN+57f8bhhRRREy+qCyP+RwESd6fQOfkCa4my5qs0U/tRFvqGlo0H4jpXgfhM/+5DCob9W0c3RfB4wzzSyybeoJyJPvYRx/KJQFX64iL4/sF5Scu6gMGP4bju9qUlZA5KDKySEO7KlJNEUAMSV+T4r8sEVo4uj4+I8z29Bt3DH029Yet0BJAf4gAHVqsm4ewGPvwerf88FDJHjavWSItDagt/RiCZhRXEjk=

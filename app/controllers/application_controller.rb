@@ -2,7 +2,9 @@ class ApplicationController < ActionController::Base
   # Prevent CSRF attacks by raising an exception.
   # For APIs, you may want to use :null_session instead.
   protect_from_forgery with: :exception
-  force_ssl unless Rails.env.development?
+
+  # TODO(kr) this is dangerous, only for hacking
+  # force_ssl unless Rails.env.development?
 
   before_filter :update_sanitized_params, if: :devise_controller?
 
