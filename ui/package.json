@@ -1,0 +1,14 @@
+{
+  "name": "somerville-teacher-tool-ui",
+  "version": "0.1.0",
+  "main": "assets/javascripts/index.js",
+  "scripts": {
+    "clean": "rm -rf dist/*",
+    "build": "npm run clean; webpack src/index.js dist/webpack_bundle.js --config webpack.config.development.js"
+  },
+  "dependencies": {
+    "jquery": "^2.1.4",
+    "jquery-ui": "^1.10.5",
+    "jquery-ujs": "^1.0.4"
+  }
+}

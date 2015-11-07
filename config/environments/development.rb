@@ -39,4 +39,12 @@ Rails.application.configure do
 
   # Raises error for missing translations
   # config.action_view.raise_on_missing_translations = true
+
+  # serve assets from the webpack server on different host
+  config.action_controller.asset_host = Proc.new do |source|
+    if source =~ /webpack_bundle\.js$/i
+      'http://webpack:8080'
+    end
+  end
+
 end
