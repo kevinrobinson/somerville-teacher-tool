@@ -4,6 +4,7 @@ module.exports = {
   entry: {
     app: ['./src/index.js']
   },
+  devtool: "source-map", // or "inline-source-map"
   output: {
     path: path.resolve(__dirname, 'dist'),
     publicPath: '/javascripts',
@@ -13,6 +14,12 @@ module.exports = {
   },
   resolve: {
     extensions: ['', '.js']
+  },
+  module: {
+    loaders: [
+      { test: /\.css$/, loader: "style!css" },
+      { test: /\.scss$/, loaders: ["style", "css", "sass"] }
+    ]
   },
   watchOptions: {
     poll: true

@@ -35,3 +35,7 @@ require('./session_timeout_warning');
 require('./datepicker');
 
 require('./student-searchbar');
+
+
+// all the css
+require('./styles/index.scss')
