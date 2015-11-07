@@ -1,0 +1,30 @@
+Install VirtualBox 5.0.8
+https://www.virtualbox.org/wiki/Downloads
+
+Install Docker toolbox
+http://docs.docker.com/mac/started/
+
+`docker-machine create --driver virtualbox somerville`
+
+`docker-machine env somerville`
+
+(put that in your .bashrc or equivalent)
+(add ip to /etc/hots)
+
+test it out with
+
+```
+docker run hello-world
+docker run -d -p 8000:80 nginx
+curl http://docker:8000
+```
+
+
+# orchestration
+docker-compose build
+docker-compose up
+
+# postgres setup
+bundle exec rake db:setup
+bundle exec rake db:migrate
+bundle exec rake db:seed:demo

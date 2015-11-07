@@ -3,14 +3,19 @@
 development:
   adapter: postgresql
   encoding: unicode
+  database: postgres
   pool: 5
-  database: homeroom_development
-  host: localhost
+  username: postgres
+  password:
+  host: postgres
 
 test:
   adapter: postgresql
   encoding: unicode
   pool: 5
+  username: postgres
+  password:
+  host: postgres
   database: homeroom_test
 
   # The specified database role being used to connect to postgres.
