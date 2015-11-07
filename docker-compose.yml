@@ -8,6 +8,8 @@ rails:
     - .:/mnt/somerville-teacher-tool
     - ./webpack/dist:/mnt/somerville-teacher-tool/public/assets/webpack-dist
   working_dir: /mnt/somerville-teacher-tool
+  environment:
+    DATABASE_URL: postgresql://postgres@postgres/homeroom_development?pool=5
   ports:
     - "3000:3000"
   links:
