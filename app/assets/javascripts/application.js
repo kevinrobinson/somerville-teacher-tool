@@ -10,23 +10,4 @@
 // Read Sprockets README (https://github.com/sstephenson/sprockets#sprockets-directives) for details
 // about supported directives.
 //
-//= require jquery
-//= require jquery_ujs
-//= require jquery-ui
-//= require highcharts
-//= require jquery.tooltipster.min.js
-//= require tablesort.min
-//= require tablesort.numeric
-//= require mustache.min
-//= require js.cookie
-//= require classList
-//= require_tree ./sorts
-//= require roster
-//= require roster_bulk_assignment
-//= require_tree ./charts
-//= require profile
-//= require profile_interventions
-//= require session_timeout_warning
-//= require datepicker
-//= require rounded-corners
-//= require student-searchbar
+//= require bundle.js

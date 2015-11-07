@@ -36,3 +36,5 @@ bundle exec rake db:setup
 bundle exec rake db:migrate
 bundle exec rake db:seed:demo
 ```
+
+using -v to volume mount when developing

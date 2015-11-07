@@ -1,13 +1,14 @@
-require('jquery');
+window.jQuery = window.$ = require('jquery');
 require('jquery-ui');
 require('jquery-ujs');
 
 require('./vendor/highcharts');
+require('./vendor/rounded-corners');
 require('./vendor/jquery.tooltipster.min.js');
-require('./vendor/tablesort.min');
+window.Tablesort = require('./vendor/tablesort.min');
 require('./vendor/tablesort.numeric');
-require('./vendor/mustache.min');
-require('./vendor/js.cookie');
+window.Mustache = require('./vendor/mustache.min');
+window.Cookies = require('./vendor/js.cookie');
 require('./vendor/classList');
 
 require('./sorts/mcas_sort');
@@ -32,5 +33,5 @@ require('./profile');
 require('./profile_interventions');
 require('./session_timeout_warning');
 require('./datepicker');
-// require('./rounded-corners');
+
 require('./student-searchbar');
