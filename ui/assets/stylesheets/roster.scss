@@ -1,0 +1,54 @@
+/* ROSTER */
+
+.roster-chart {
+  height: 150px !important;
+  margin-bottom: 20px !important;
+  padding-bottom: 0 !important;
+  border-bottom: 2px solid $backgroud;
+  margin-top: -40px !important;
+}
+
+.highcharts-container {
+ overflow: visible !important;
+ margin-top: 60px !important;
+}
+
+#column-picker-toggle {
+  cursor: pointer;
+  padding: 10px;
+  margin-right: 10px;
+}
+
+#column-picker {
+  display: none;
+  position: absolute;
+  right: 0px;
+  background-color: white;
+  z-index: 100;
+  border: 2px solid $backgroud;
+  border-radius: 4px;
+  padding: 20px;
+  text-align: left;
+  line-height: 150%;
+
+  p {
+    border-bottom: 1px solid $dark-line;
+    margin-bottom: 10px;
+    font-weight: 700;
+  }
+
+  label {
+    padding-left: 3px;
+    display: inline-block;
+  }
+
+  #column-template {
+    padding-bottom: 5px;
+  }
+}
+
+#dialog-form {
+  input, textarea, select {
+    margin-bottom: 16px;
+  }
+}
