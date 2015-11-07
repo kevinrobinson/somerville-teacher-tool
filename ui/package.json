@@ -4,8 +4,8 @@
   "main": "assets/javascripts/index.js",
   "scripts": {
     "clean": "rm -rf dist/*",
-    "build": "npm run clean; webpack --config webpack.config.development.js",
-    "develop": "webpack-dev-server --host 0.0.0.0 --port 8666 --progress --colors" 
+    "watch": "webpack --config webpack.config.development.js --progress --colors --watch",
+    "develop": "webpack-dev-server --host 0.0.0.0 --port 8666" 
   },
   "dependencies": {
     "jquery": "^2.1.4",

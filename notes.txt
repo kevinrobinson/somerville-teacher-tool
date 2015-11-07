@@ -38,3 +38,8 @@ bundle exec rake db:seed:demo
 ```
 
 using -v to volume mount when developing
+
+
+examples of using individual containers:
+`docker-compose run rails`
+`docker-compose run webpack bash`

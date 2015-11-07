@@ -1,14 +1,15 @@
-postgres:
-  image: postgres
 rails:
   build: .
-  command: bundle exec rails s -p 3000 -b '0.0.0.0'
   volumes:
     - .:/mnt/somerville-teacher-tool
+    - ./ui/dist:/mnt/somerville-teacher-tool/public/assets/webpack-dist
+  working_dir: /mnt/somerville-teacher-tool
   ports:
     - "3000:3000"
   links:
     - postgres
+  command: bundle exec rails s -p 3000 -b '0.0.0.0'
+
 webpack:
   build: ui/.
   command: npm run develop
@@ -16,3 +17,6 @@ webpack:
     - "8666:8666"
   volumes:
     - ./ui:/mnt/ui
+
+postgres:
+  image: postgres
