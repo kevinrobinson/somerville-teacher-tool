@@ -20,6 +20,52 @@ host: localhost
 ```
 (For an explanation see [this Stackoverflow discussion](http://stackoverflow.com/questions/23375740/pgconnectionbad-fe-sendauth-no-password-supplied))
 
+## Docker setup
+Alternately, you can run this in Docker containers using docker-compose.
+
+First, install the software (assuming a Mac):
+
+  - Install VirtualBox 5.0.8: https://www.virtualbox.org/wiki/Downloads
+  - Install Docker toolbox: http://docs.docker.com/mac/started/
+  - Create a new Docker machine within the VM: `docker-machine create --driver virtualbox somerville`
+  - Run `docker-machine env somerville` and add that to your `.bashrc`
+  - For convenience, add the IP to `/etc/hosts` as `docker` so you can visit `http://docker:3000`.
+  - Test it out with: 
+    ```
+    docker run hello-world
+    docker run -d -p 8000:80 nginx
+    curl http://docker:8000
+    ```
+
+Run the project:
+  - Rebuild all container images: `docker-compose build`
+  - Run database migration and seeding: `docker-compose run rails bundle exec rake db:setup db:migrate db:seed:demo`
+  - Start all the services: `docker-compose up`
+  - Open `http://docker:3000` in a browser!
+
+Working and developing:
+  - To get a shell into a container, run `docker-compose run rails`
+Other notes:
+  - You can ```
+docker-compose build
+docker-compose up
+```
+
+Postgres setup after containers are up
+```
+bundle exec rake db:setup
+bundle exec rake db:migrate
+bundle exec rake db:seed:demo
+```
+
+using -v to volume mount when developing
+
+
+examples of using individual containers:
+`docker-compose run rails`
+`docker-compose run webpack bash`
+
+
 ### Setting up demo data
 
 To set up demo data after you clone the project, run

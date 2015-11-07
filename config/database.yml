@@ -3,7 +3,7 @@
 development:
   adapter: postgresql
   encoding: unicode
-  database: postgres
+  database: homeroom_development
   pool: 5
   username: postgres
   password:

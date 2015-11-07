@@ -1,3 +1,4 @@
+# This is based off https://github.com/docker-library/rails/blob/7926577517fb974f9de9ca1511162d6d5e000435/Dockerfile
 FROM ruby:2.2
 
 RUN apt-get update -qq && apt-get install -y build-essential libpq-dev
