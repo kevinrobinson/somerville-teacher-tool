@@ -43,7 +43,7 @@ Rails.application.configure do
   # serve assets from the webpack server on different host
   config.action_controller.asset_host = Proc.new do |source|
     if source =~ /webpack_bundle\.js$/i
-      'http://webpack:8080'
+      'http://docker:8666/webpack-dev-server'
     end
   end
 

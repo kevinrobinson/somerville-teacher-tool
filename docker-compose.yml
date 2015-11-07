@@ -9,3 +9,10 @@ rails:
     - "3000:3000"
   links:
     - postgres
+webpack:
+  build: ui/.
+  command: npm run develop
+  ports:
+    - "8666:8666"
+  volumes:
+    - ./ui:/mnt/ui
