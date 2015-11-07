@@ -1,0 +1,32 @@
+# This is based off https://docs.docker.com/compose/rails/
+#
+# Asset compilation works by having the webpack container continually build an artifact,
+# and that artifact being mounted for Rails to serve statically.
+rails:
+  build: .
+  volumes:
+    - .:/mnt/somerville-teacher-tool
+  working_dir: /mnt/somerville-teacher-tool
+  environment:
+    DATABASE_URL: postgresql://postgres@postgres # overrides hostname and username
+  ports:
+    - "3000:3000"
+  links:
+    - postgres
+  command: bundle exec rails s -b '0.0.0.0'
+
+webpack:
+  build: webpack/.
+  command: npm run watch
+  # TODO(kr) improve this mapping for root files, like Webpack config
+  volumes:
+    - ./webpack/src:/mnt/webpack/src
+    - ./webpack/dist_production:/mnt/webpack/dist_production
+    - ./public/webpack_dev:/mnt/webpack/dist_dev
+
+postgres:
+  image: postgres
+  ports:
+    - "5432:5432"
+  volumes:
+    - /var/lib/postgresql/data
