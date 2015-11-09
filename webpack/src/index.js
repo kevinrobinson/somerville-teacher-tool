@@ -1,5 +1,4 @@
 window.jQuery = window.$ = require('jquery');
-require('jquery-ui');
 require('jquery-ujs');
 
 require('./vendor/highcharts');
@@ -10,7 +9,6 @@ require('./vendor/tablesort.numeric');
 window.Mustache = require('./vendor/mustache.min');
 window.Cookies = require('./vendor/js.cookie');
 require('./vendor/classList');
-require('./vendor/jquery-ui-1.11.4/jquery-ui.min');
 
 require('./sorts/mcas_sort');
 require('./sorts/reverse_number');

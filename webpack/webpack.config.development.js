@@ -1,27 +1,16 @@
 var path = require('path');
+var _ = require('lodash');
+var sharedConfig = require('./webpack.config.shared.js');
 
-module.exports = {
-  entry: {
-    app: ['./src/index.js']
+
+module.exports = _.merge(sharedConfig, {
+  output: {
+    path: path.resolve(__dirname, 'dist_dev'),
+    publicPath: '/javascripts',
+    filename: 'webpack_bundle.js'
   },
   devtool: "source-map", // or "inline-source-map"
-  output: {
-    path: path.resolve(__dirname, 'dist'),
-    publicPath: '/javascripts',
-    filename: 'webpack_bundle.js',
-    library: 'SomervilleTeacherToolUi',
-    libraryTarget: 'umd'
-  },
-  resolve: {
-    extensions: ['', '.js']
-  },
-  module: {
-    loaders: [
-      { test: /\.css$/, loader: "style!css" },
-      { test: /\.scss$/, loaders: ["style", "css", "sass"] }
-    ]
-  },
   watchOptions: {
     poll: true
   }
-};
+});
