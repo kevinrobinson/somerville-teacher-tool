@@ -1,6 +1,6 @@
 language: ruby
 rvm:
-- ruby-2.1.6
+- ruby-2.2.3
 branches:
   only:
     - master
@@ -20,3 +20,8 @@ env:
   - secure: UrWfCKjit5P3QVJDIJPf1lzsY0e6qWEABVhfzaQvH6xwjaTlmhk44MGv/Yy9YywSY1qjTeERwvmDe7d5Zy32heJxKb8+ERcIPX0BPCO3l5mHnV1a1DgXsNaiMCekCgA5Ip1FFqgCIpG6MRuFPj/gn9j+pR6Exjeoi2Lg67kTFfs=
 notifications:
   webhooks: http://project-monitor.codeforamerica.org/projects/somerville-teacher-tool/status
+
+sudo: required
+
+services:
+  - docker
