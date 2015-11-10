@@ -14,7 +14,7 @@ branches:
 
 install:
   - bundle install --retry=3
-  - docker-compose run webpack npm run build:dev
+  - docker-compose run webpack npm install && npm run build:dev
   - cp webpack/dist_dev/webpack_bundle.js public/assets/webpack-dist/webpack_bundle.js
 
 script:
