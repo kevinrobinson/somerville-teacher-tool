@@ -1,5 +1,8 @@
 $(function() {
 
+  // jQuery UI is not loaded in the test environment, so feature detect and don't run this code.
+  // This workaround can be removed when moving the JS codebase to modules.
+  if (typeof $.fn.autocomplete === undefined) return;
   $("#student-searchbar").autocomplete({
     source: function(request, response) {
       $.ajax({
