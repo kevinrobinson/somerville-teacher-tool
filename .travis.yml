@@ -2,7 +2,10 @@ language: ruby
 rvm:
   - 2.2.3
 
+sudo: required
+
 services:
+  - docker
   - postgresql
 
 branches:
@@ -11,14 +14,13 @@ branches:
 
 install:
   - bundle install --retry=3
-  - cd webpack && npm install && npm run build:dev && cd ..
+  - docker-compose run webpack npm run build:dev
   - cp webpack/dist_dev/webpack_bundle.js public/assets/webpack-dist/webpack_bundle.js
 
 script:
   - bundle exec rake db:create db:migrate DATABASE_URL=postgres://localhost/homeroom_test
   - bundle exec rspec spec
   - bundle exec teaspoon
-  # - karma start --single-run --browsers PhantomJS spec/javascripts/karma/config/unit.js
 
 env:
   global:
@@ -32,3 +34,4 @@ env:
 
 notifications:
   webhooks: http://project-monitor.codeforamerica.org/projects/somerville-teacher-tool/status
+
