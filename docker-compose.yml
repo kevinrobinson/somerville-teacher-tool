@@ -19,10 +19,12 @@ rails:
 webpack:
   build: webpack/.
   command: npm run develop
-  ports:
-    - "8666:8666"
   volumes:
     - ./webpack:/mnt/webpack
 
 postgres:
   image: postgres
+  ports:
+    - "5432:5432"
+  volumes:
+    - /var/lib/postgresql/data
