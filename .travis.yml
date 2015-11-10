@@ -6,11 +6,11 @@ branches:
     - master
 install: bundle install --retry=3
 script:
-- docker-compose run webpack npm run build:production
-- RAILS_ENV=test bundle exec rake db:create db:migrate DATABASE_URL=postgres://postgres@postgres/homeroom_test
+- cd webpack && npm install && npm run build:production
+- RAILS_ENV=test bundle exec rake db:create db:migrate DATABASE_URL=postgres://localhost/homeroom_test
 - RAILS_ENV=test bundle exec rspec spec
-# this runs outside the container, since it's tough to install phantomjs in the container
 - RAILS_ENV=test bundle exec teaspoon
+# - karma start --single-run --browsers PhantomJS spec/javascripts/karma/config/unit.js
 env:
   global:
   - secure: ItIXJnhdTGduR/w2xNNFLauu9CWWzwX/QdTaXXjBTBI7inCNuRUWdCuBQbwH0LJFGeAvwRUURdrtMF+ICIAQR0Lp6eYkXwhzldpt5jKMGkXg0ZnDrY4wvYY98Jlt/sXatxIilsjlEDQ8LXMHprKw+4hhD1Bnz073ua2pN4H7550=
@@ -22,8 +22,3 @@ env:
   - secure: UrWfCKjit5P3QVJDIJPf1lzsY0e6qWEABVhfzaQvH6xwjaTlmhk44MGv/Yy9YywSY1qjTeERwvmDe7d5Zy32heJxKb8+ERcIPX0BPCO3l5mHnV1a1DgXsNaiMCekCgA5Ip1FFqgCIpG6MRuFPj/gn9j+pR6Exjeoi2Lg67kTFfs=
 notifications:
   webhooks: http://project-monitor.codeforamerica.org/projects/somerville-teacher-tool/status
-
-sudo: required
-
-services:
-  - docker
