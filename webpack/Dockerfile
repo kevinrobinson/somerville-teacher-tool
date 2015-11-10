@@ -2,7 +2,9 @@ FROM node:4.2.2
 
 RUN npm install -g webpack
 
-COPY ./package.json /mnt/webpack/package.json
+RUN mkdir /mnt/webpack
+WORKDIR /mnt/webpack
+COPY ./package.json package.json
 RUN npm install
 
 COPY . /mnt/webpack
