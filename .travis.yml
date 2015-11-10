@@ -6,7 +6,7 @@ branches:
     - master
 install: bundle install --retry=3
 script:
-- docker build -t kevinrobinson/somerville-teacher-tool:travis-webpack .
+- docker build -t kevinrobinson/somerville-teacher-tool:travis-webpack webpack
 - docker-compose run kevinrobinson/somerville-teacher-tool:travis-webpack npm run build:production
 - bundle exec rake db:create db:migrate DATABASE_URL=postgres://localhost/homeroom_test
 - bundle exec rspec spec
