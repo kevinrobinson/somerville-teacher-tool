@@ -1,17 +1,24 @@
 language: ruby
 rvm:
-- ruby-2.2.3
+  - 2.2.3
+
 branches:
   only:
     - master
-install: bundle install --retry=3
+
+install:
+  - bundle install --retry=3
+  - rm -rf ~/.nvm && git clone https://github.com/creationix/nvm.git ~/.nvm && (cd ~/.nvm && git checkout `git describe --abbrev=0 --tags`) && source ~/.nvm/nvm.sh && nvm install $TRAVIS_NODE_VERSION
+  - cd webpack && npm install && npm run build:production
+
 script:
-- cd webpack && npm install && npm run build:production
-- RAILS_ENV=test bundle exec rake db:create db:migrate DATABASE_URL=postgres://localhost/homeroom_test
-- RAILS_ENV=test bundle exec rspec spec
-- RAILS_ENV=test bundle exec teaspoon
-# - karma start --single-run --browsers PhantomJS spec/javascripts/karma/config/unit.js
+  - bundle exec rake db:create db:migrate DATABASE_URL=postgres://localhost/homeroom_test
+  - bundle exec rspec spec
+  - bundle exec teaspoon
+  # - karma start --single-run --browsers PhantomJS spec/javascripts/karma/config/unit.js
+
 env:
+  - TRAVIS_NODE_VERSION="4"
   global:
   - secure: ItIXJnhdTGduR/w2xNNFLauu9CWWzwX/QdTaXXjBTBI7inCNuRUWdCuBQbwH0LJFGeAvwRUURdrtMF+ICIAQR0Lp6eYkXwhzldpt5jKMGkXg0ZnDrY4wvYY98Jlt/sXatxIilsjlEDQ8LXMHprKw+4hhD1Bnz073ua2pN4H7550=
   - secure: p0LVATEgItbQa1rN4coZ79UYwH5Bi5fvtKT9MUyTHpnc2HwdgpWuTlaO1/JOsSqB1dxEfuZuC5BuMJiILm3GDMRXkBQbnbl7wYZxeULtYdufOFR0GBc3/gvzkCzbHEOlV3WklyRiHRmTzNVu5drAi5l4rxgeVco6mxGqAPgbdmo=
@@ -20,5 +27,6 @@ env:
   - secure: jSWLU8N9ui5BZ7PmWmY08BrrOx1BN1IEdYhrTnv5RDWMbUyGTu62hyXOseKMy1b+URaWSiklkxLBK0uVm1oSYf/MYiDhNwFTqPn8eH7AK7MJcxSOaJ4ce0eCEeTy56Wnbljjt0jYeGMFS05uBGhUT82vYvXq4l4h7pCORJWXaPA=
   - secure: Rl1K2PFb0CwnwbFGeA2bRxPSEO4NZEaJ9Z4iADU2/hQ9qUL7GzNuYsuvvubT58K52awa5kOLSFKp0HKyygifrV4PgUG8ebr4tlK1x/kxltaoI92220yZTR2scQWULpjOdddNPK/E2JNbePRhkhstUA8ZDMhbqYGJ17WOR0syFow=
   - secure: UrWfCKjit5P3QVJDIJPf1lzsY0e6qWEABVhfzaQvH6xwjaTlmhk44MGv/Yy9YywSY1qjTeERwvmDe7d5Zy32heJxKb8+ERcIPX0BPCO3l5mHnV1a1DgXsNaiMCekCgA5Ip1FFqgCIpG6MRuFPj/gn9j+pR6Exjeoi2Lg67kTFfs=
+
 notifications:
   webhooks: http://project-monitor.codeforamerica.org/projects/somerville-teacher-tool/status
