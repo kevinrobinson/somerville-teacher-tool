@@ -8,7 +8,8 @@ branches:
 
 install:
   - bundle install --retry=3
-  - cd webpack && npm install && npm run build:production && cd ..
+  - cd webpack && npm install && npm run build:dev && cd ..
+  - cp webpack/dist_dev/webpack_bundle.js public/assets/webpack-dist/webpack_bundle.js
 
 script:
   - bundle exec rake db:create db:migrate DATABASE_URL=postgres://localhost/homeroom_test

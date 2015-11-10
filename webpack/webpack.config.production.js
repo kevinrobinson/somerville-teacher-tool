@@ -14,6 +14,5 @@ module.exports = _.merge(sharedConfig, {
   plugins: [
     new AssetsPlugin({ path: outputPath }),
     new webpack.optimize.UglifyJsPlugin()
-    // new webpack.optimize.OccurenceOrderPlugin()
   ]
 });
