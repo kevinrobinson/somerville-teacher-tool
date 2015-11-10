@@ -7,10 +7,10 @@ branches:
 install: bundle install --retry=3
 script:
 - docker-compose run webpack npm run build:production
-- RAILS_ENV=test bundle exec rake db:create db:migrate DATABASE_URL=postgres://postgres@postgres/homeroom_test && 
+- RAILS_ENV=test bundle exec rake db:create db:migrate DATABASE_URL=postgres://postgres@postgres/homeroom_test
 - RAILS_ENV=test bundle exec rspec spec
 # this runs outside the container, since it's tough to install phantomjs in the container
-- RAILS_ENV=test rails bundle exec teaspoon
+- RAILS_ENV=test bundle exec teaspoon
 env:
   global:
   - secure: ItIXJnhdTGduR/w2xNNFLauu9CWWzwX/QdTaXXjBTBI7inCNuRUWdCuBQbwH0LJFGeAvwRUURdrtMF+ICIAQR0Lp6eYkXwhzldpt5jKMGkXg0ZnDrY4wvYY98Jlt/sXatxIilsjlEDQ8LXMHprKw+4hhD1Bnz073ua2pN4H7550=
