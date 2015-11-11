@@ -13,16 +13,14 @@ branches:
     - master
 
 install:
-  - bundle install --retry=3
+  - docker-compose run webpack ls node_modules
+  - docker-compose run webpack ls node_modules/jquery
   - docker-compose run webpack npm run build:dev
   - ls webpack/dist_dev/*
   - cp webpack/dist_dev/* public/assets/webpack-dist
 
 script:
-  - bundle exec rake db:create db:migrate DATABASE_URL=postgres://localhost/homeroom_test
-  - bundle exec rspec spec
   - cat webpack/dist_dev/*
-  - bundle exec teaspoon
 
 env:
   global:
