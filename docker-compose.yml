@@ -6,7 +6,6 @@ rails:
   build: .
   volumes:
     - .:/mnt/somerville-teacher-tool
-    - ./webpack/dist_dev:/mnt/somerville-teacher-tool/public/assets/webpack-dist
   working_dir: /mnt/somerville-teacher-tool
   environment:
     DATABASE_URL: postgresql://postgres@postgres # overrides hostname and username
@@ -19,6 +18,9 @@ rails:
 webpack:
   build: webpack/.
   command: npm run watch
+  volumes:
+    - ./webpack/src:/mnt/webpack/src
+    - ./public/assets/webpack-dist:/mnt/webpack/dist_dev
 
 postgres:
   image: postgres
