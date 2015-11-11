@@ -19,8 +19,6 @@ rails:
 webpack:
   build: webpack/.
   command: npm run watch
-  volumes:
-    - ./webpack:/mnt/webpack
 
 postgres:
   image: postgres
