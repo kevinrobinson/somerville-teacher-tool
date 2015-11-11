@@ -11,12 +11,14 @@ branches:
 
 install:
   - bundle install --retry=3
-  - cd webpack && npm install && npm run build:dev && cd ..
+  - docker-compose run webpack npm run build:dev
+  - ls webpack/dist_dev/*
   - cp webpack/dist_dev/* public/assets/webpack-dist
 
 script:
   - bundle exec rake db:create db:migrate DATABASE_URL=postgres://localhost/homeroom_test
   - bundle exec rspec spec
+  - cat webpack/dist_dev/*
   - bundle exec teaspoon
 
 env:
