@@ -17,9 +17,13 @@ install:
   - docker-compose run webpack ls node_modules/jquery
   - docker-compose run webpack npm run build:dev
   - ls public/assets/webpack-dist/*
+  - bundle install --retry=3
 
 script:
-  - cat webpack/dist_dev/*
+  - bundle exec rake db:create db:migrate DATABASE_URL=postgres://localhost/homeroom_test
+  - bundle exec rspec spec
+  - cat public/assets/webpack-dist/*
+  - bundle exec teaspoon
 
 env:
   global:
