@@ -2,10 +2,7 @@ language: ruby
 rvm:
   - 2.2.3
 
-sudo: required
-
 services:
-  - docker
   - postgresql
 
 branches:
