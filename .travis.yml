@@ -16,8 +16,7 @@ install:
   - docker-compose run webpack ls node_modules
   - docker-compose run webpack ls node_modules/jquery
   - docker-compose run webpack npm run build:dev
-  - ls webpack/dist_dev/*
-  - cp webpack/dist_dev/* public/assets/webpack-dist
+  - ls public/assets/webpack-dist/*
 
 script:
   - cat webpack/dist_dev/*
