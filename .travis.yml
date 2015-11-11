@@ -15,7 +15,7 @@ branches:
 install:
   - bundle install --retry=3
   - docker-compose run webpack npm run build:dev
-  - cp webpack/dist_dev/webpack_bundle.js public/assets/webpack-dist/webpack_bundle.js
+  - cp webpack/dist_dev/* public/assets/webpack-dist
 
 script:
   - bundle exec rake db:create db:migrate DATABASE_URL=postgres://localhost/homeroom_test
