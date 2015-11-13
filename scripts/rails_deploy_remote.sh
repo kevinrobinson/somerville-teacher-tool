@@ -30,10 +30,10 @@ docker run \
   -e 'RAILS_ENV=production' \
   -e "DATABASE_URL=postgresql://postgres@$POSTGRES_IP_ADDRESS/homeroom_production" \
   kevinrobinson/somerville-teaching-tool:production_rails \
-  bundle exec rails s -b '0.0.0.0'
+  bundle exec puma -t 5:5 -p 3000 -e production
 
 # TODO(kr) puma
-# bundle exec puma -t 5:5 -p ${PORT:-3000} -e ${RACK_ENV:-development}
+# bundle exec puma -t 5:5 -p ${PORT:-3000} -e ${RACK_ENV:-production}
 
 # TODO(kr) nginx
 
