@@ -19,12 +19,15 @@ docker run \
   webpack-building-production \
   npm run build:production
 
-# Copy the assets to the S3, where the Cloudfront CDN will read them from.
-aws s3 cp ./webpack/dist_production s3://somerville-teaching-tool-cdn/production/js --recursive
-
-# Clear any assets we generated in the process.
-scripts/rails_clear.sh
+# Copy the manifest into the Rails folder, so the Rails HTML frame can point to the main JS file.
+# And put the assets in S3, where the Cloudfront CDN will read them from.
+MANIFEST_FILE=webpack-assets.json
+cp -r ~/github/somerville-teacher-tool/webpack/dist_production/$MANIFEST_FILE ~/github/somerville-teacher-tool/public/js/$MANIFEST_FILE
+aws s3 cp ./webpack/dist_production s3://somerville-teaching-tool-cdn/production/js --exclude "$MANIFEST_FILE" --recursive
 
 # Build the production Rails image and push it.
 docker build -t kevinrobinson/somerville-teaching-tool:production_rails .
 docker push kevinrobinson/somerville-teaching-tool:production_rails
+
+# Clear any assets we generated in the process.
+scripts/rails_clear.sh
