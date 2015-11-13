@@ -32,9 +32,6 @@ docker run \
   kevinrobinson/somerville-teaching-tool:production_rails \
   bundle exec puma -t 5:5 -p 3000 -e production
 
-# TODO(kr) puma
-# bundle exec puma -t 5:5 -p ${PORT:-3000} -e ${RACK_ENV:-production}
-
 # TODO(kr) nginx
 
 # TODO(kr) ssl
