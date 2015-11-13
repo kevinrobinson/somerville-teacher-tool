@@ -47,9 +47,12 @@ Run the project using `docker-compose`:
   - Start all the services: `docker-compose up`
   - Open `http://docker:3000` in a browser!
 
+See the [Webpack README](webpack/README.md) for more information about the build setup.
+See the [scripts README](scripts/README.md) for information about production builds and deploys.
+
 ### Setting up demo data
 
-To set up demo data after you clone the project, run
+To set up demo data after you clone the project, run:
 
 ```
 rake db:seed:demo

@@ -210,25 +210,19 @@ TODO(kr) move this to the Travis build
 
 
 # Deploying containers on production instances
-If you're trying to deploy the service for the first time, skip to `First deploy!` below.
+If you're trying to deploy the service for the first time, you'll have to setup and seed the database first, see the `First deploy!` section below.
 
-Deploying containers is curently a semi-automated process, with help from the script in `scripts/rails_deploy.sh`.  This script needs to be copied to the production instance and run manually.  It works by pulling the production container image from Docker Hub and then running it as a daemon.
+Deploying containers is a semi-automated process.
 
-First, `scp` the deploy script to the production instance, `ssh` in and `chmod` it so it is `u+x`.  Check out the arguments of the deploy script, since it may require some additional information (eg, IP addresses for another service).  Grabbing these arguments is currently a manual step.
+First, in order to communicate with Docker Hub, you'll need to manually run `docker login` on the production instance to authenticate.  This authorization will be cached.  You'll also need to add the deploying user to the `docker` user group.
 
-Second, in order to communicate with Docker Hub, you'll need to manually run `docker login` on the production instance to authenticate.  This authorization will be cached.
+Second, run the local script `scripts/rails_deploy.sh` to submit a deploy.  This script will query AWS for configuration information needed to perform the deploy, copy a script to the production instance that will perform the deploy, and then execute it.  The first pull may take a little while since it's pulling each layer of the container image, but these are immutable and cached, so subsequent pulls will be faster.
 
-Third, run the script with the right arguments, and it will start pulling down the image to run it.  This will take a little while on the first run, since it's pulling each layer of the container image.  These are immutable and will be cached going forward.
+Third, check that the service is up!
 
-Example, assuming the user is in the `docker` group:
+Currently, the deploy works by pulling the production container image from Docker Hub, stopping the previous image, and then running the new image as a daemon.  This is less than ideal since it means there is some downtime during the deploy.  You can work around for now by doing a rolling deploy, but this is an area in need of improvement.
 
-```
-scripts/rails_submit_deploy.sh rails2001 <postgres ip>
-```
-
-Check that the service is up!
-
-Note that this is a minimal deploy step, and doesn't do anything sophisticated with setting up monitoring, alerting or even using upstart to ensure that the process restarts.
+Also note that this is a minimal deploy step, and doesn't do anything sophisticated with setting up monitoring, alerting or even using upstart to ensure that the process restarts.
 
 TODO(kr) create deploy user for this, automate more of the authorization and user steps.  Also clarify where these scripts should be broken up into, how and when configuration gets onto the box.
 
