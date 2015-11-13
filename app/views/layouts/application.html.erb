@@ -3,9 +3,7 @@
   <head>
     <title>Student Insights</title>
     <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700,300' rel='stylesheet' type='text/css'>
-    <% if Rails.env.development? %>
-      <script src="/webpack_dev/webpack_bundle.js"></script>
-    <% else %>
+    <% if Rails.env.production? %>
       <%
         # Read manifest from Webpack build and point to the `app` entry.
         path = Rails.root.join('public', 'js', 'webpack-assets.json')
@@ -14,6 +12,8 @@
         @entrypoint_script_url = json['app']['js']
       %>
       <script src="<%= @entrypoint_script_url %>"></script>
+    <% else %>
+      <script src="/webpack_dev/webpack_bundle.js"></script>
     <% end %>
     <%= csrf_meta_tags %>
   </head>
