@@ -20,6 +20,7 @@ script:
   - bundle exec rake db:create db:migrate DATABASE_URL=postgres://localhost/homeroom_test
   - bundle exec rspec spec
   - bundle exec teaspoon
+  - ./scripts/travis_production_build.sh
 
 env:
   global:

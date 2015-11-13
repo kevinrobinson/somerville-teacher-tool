@@ -1,11 +1,8 @@
 # This builds artifacts needed by the production Rails image (eg, asset manifests).
 # It cleans folders, generates the artifacts and then builds and pushes the production image.
 #
-# This will be run by Travis, when the master branch has been merged to.
 # Any tests should have run and passed at this point.
-
-# TODO(kr) need docker hub credentials
-# ~/.docker/config.json
+# Need docker hub credentials to have been set beforehand.
 
 # Clear any previously built assets from dev or prod builds.
 scripts/rails_clear.sh
