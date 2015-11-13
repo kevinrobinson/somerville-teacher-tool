@@ -8,6 +8,7 @@ module.exports = {
     extensions: ['', '.js']
   },
   module: {
+    noParse: '/(\.min\.js|\.min\.css)$/',
     loaders: [
       { test: /\.css$/, loader: "style-loader!css-loader" },
       { test: /\.scss$/, loaders: ["style", "css", "sass"] },
