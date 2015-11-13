@@ -12,11 +12,13 @@ export SUPERUSER_PEM_FILE=
 export DOMAIN_NAME=
 export HOSTED_ZONE_ID=
 
-# Security group names.  Create these manually and update here.
+# Security group names, all tied to a specific availability zone at the moment.
+# For now, create these manually and update here, but this could use
+# some work to make it work across regions.
 export SG_DEFAULT=
-export SG_POSTGRES=
 export SG_SSH_ACCESS=
 export SG_WEB_TRAFFIC=
+export SG_POSTGRES=
 
 # AMI image for all nodes
 export AMI_IMAGE_ID=
