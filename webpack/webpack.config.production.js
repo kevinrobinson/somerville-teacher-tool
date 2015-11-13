@@ -8,7 +8,7 @@ var outputPath = path.resolve(__dirname, 'dist_production');
 module.exports = _.merge(sharedConfig, {
   output: {
     path: outputPath,
-    publicPath: "http://somerville-teaching-tool-cdn.s3.amazonaws.com/production/js/", // hostname needs to match Rails config
+    publicPath: "https://somerville-teaching-tool-cdn.s3.amazonaws.com/production/js/", // hostname needs to match Rails config
     filename: '[name]-[chunkhash].js'
   },
   plugins: [
