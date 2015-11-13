@@ -1,4 +1,6 @@
 **.orig
+.DS_Store
+npm-debug.log
 /log
 /tmp
 /sketch
@@ -7,6 +9,18 @@ coverage
 config/local_env.yml
 config/initializers/capistrano_server.rb
 db/seeds/users/educators.seeds.rb
+node_modules
+scripts/config.sh
+
+# Don't check in compiled assets
+webpack/dist_dev/
+webpack/dist_production/*
+public/webpack_dev/*
+public/js/*
+
+# Don't check in script configuration (nothing sensitive anyway)
+scripts/config.sh
+
 
 ## Environment normalisation:
 /.bundle

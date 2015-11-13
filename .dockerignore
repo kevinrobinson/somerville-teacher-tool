@@ -1,0 +1,6 @@
+.git
+log
+tmp
+webpack
+
+scripts/config.sh

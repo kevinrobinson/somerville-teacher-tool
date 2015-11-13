@@ -1,0 +1,42 @@
+# Remote script to start the production image on a provisioned Rails instance.
+#
+# usage: scripts/rails_deploy.sh POSTGRES_IP_ADDRESS
+POSTGRES_IP_ADDRESS=$1
+
+
+echo "Deploying Rails!"
+
+echo "Pulling latest container..."
+docker pull kevinrobinson/somerville-teaching-tool:production_rails
+
+# Stop the container if it's already running
+# TODO(kr) This isn't a great idea for a real production system, bouncing the container
+# means there will be some downtime here (vs. Unicorn's rolling processes).  You can 
+# see this even refreshing the page manually.
+RAILS_INFO=$(docker inspect rails)
+if [ $? -eq 0 ]
+then
+  echo "Stopping and removing the running Rails container..."
+  docker stop rails
+  docker rm rails
+fi
+
+# Start Rails as a daemon
+echo "Starting Rails container as daemon..."
+docker run \
+  -d \
+  -p 80:3000 \
+  --name rails \
+  -e 'RAILS_ENV=production' \
+  -e "DATABASE_URL=postgresql://postgres@$POSTGRES_IP_ADDRESS/homeroom_production" \
+  kevinrobinson/somerville-teaching-tool:production_rails \
+  bundle exec rails s -b '0.0.0.0'
+
+# TODO(kr) puma
+# bundle exec puma -t 5:5 -p ${PORT:-3000} -e ${RACK_ENV:-development}
+
+# TODO(kr) nginx
+
+# TODO(kr) ssl
+
+echo "Done."
