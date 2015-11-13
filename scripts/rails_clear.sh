@@ -8,5 +8,5 @@ rm -rf ~/github/somerville-teacher-tool/webpack/dist_dev/*.*
 rm -rf ~/github/somerville-teacher-tool/public/webpack_dev/*.* 
 
 # from webpack production build
-rm -rf ~/github/somerville-teacher-tool/webpack/dist_production/*.*
-rm -rf ~/github/somerville-teacher-tool/public/js/*.* 
+rm -rf ~/github/somerville-teacher-tool/webpack/dist_production/*
+rm -rf ~/github/somerville-teacher-tool/public/js/*

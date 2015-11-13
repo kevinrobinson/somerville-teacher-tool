@@ -7,12 +7,13 @@
       <script src="/webpack_dev/webpack_bundle.js"></script>
     <% else %>
       <%
+        # Read manifest from Webpack build and point to the `app` entry.
         path = Rails.root.join('public', 'js', 'webpack-assets.json')
         file = File.read(path)
         json = JSON.parse(file)
-        @entrypoint_script_path = json['app']['js']
+        @entrypoint_script_url = json['app']['js']
       %>
-      <script src="<%= @entrypoint_script_path %>"></script>
+      <script src="<%= @entrypoint_script_url %>"></script>
     <% end %>
     <%= csrf_meta_tags %>
   </head>

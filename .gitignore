@@ -18,6 +18,9 @@ webpack/dist_production/*
 public/webpack_dev/*
 public/js/*
 
+# Don't check in script configuration (nothing sensitive anyway)
+scripts/config.sh
+
 
 ## Environment normalisation:
 /.bundle
