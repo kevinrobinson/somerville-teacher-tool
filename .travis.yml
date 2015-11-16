@@ -28,6 +28,8 @@ script:
   - ls rails/public/webpack_build/
   - ls rails/public/webpack_build/*
   - cp -r volumes/webpack_build/ rails/public/webpack_build/
+  - ls rails/public/webpack_build/
+  - ls rails/public/webpack_build/*
   - cd rails
   - bundle exec teaspoon
   - cd ..

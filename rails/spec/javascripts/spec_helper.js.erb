@@ -28,4 +28,5 @@
 // For more information: http://github.com/modeset/teaspoon
 
 // Instead of using the asset pipeline, we just pull in the built artifact of our code directly.
-<%= IO.read('rails/public/webpack_build/dev/webpack_bundle.js') %>
+<%= Dir.pwd %>
+<%= IO.read('public/webpack_build/dev/webpack_bundle.js') %>
