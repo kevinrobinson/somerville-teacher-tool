@@ -27,7 +27,7 @@ script:
   - ls volumes/webpack_build/*
   - ls rails/public/webpack_build/
   - ls rails/public/webpack_build/*
-  - cp -r volumes/webpack_build/ rails/public/webpack_build/
+  - cp -r volumes/webpack_build/dev rails/public/webpack_build/dev
   - ls rails/public/webpack_build/
   - ls rails/public/webpack_build/*
   - ls rails/public/webpack_build/dev/*
