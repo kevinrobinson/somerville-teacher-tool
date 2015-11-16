@@ -18,10 +18,12 @@ script:
   - bundle install --retry=3
   - bundle exec rake db:create db:migrate DATABASE_URL=postgres://localhost/homeroom_test
   - bundle exec rspec spec
+  - cd ..
 
   # Teaspoon runs Jasmine tests, so it needs a build of the JS code.
   - docker-compose run webpack npm run build:dev
   - cp -r volumes/webpack_build/ rails/public/webpack_build/
+  - cd rails
   - bundle exec teaspoon
   - cd ..
 

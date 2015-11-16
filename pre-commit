@@ -1,2 +1,4 @@
-rspec
-teaspoon
+cd rails
+bundle exec rspec
+bundle exec teaspoon
+cd ..
