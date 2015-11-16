@@ -12,16 +12,20 @@ branches:
   only:
     - master
 
-install:
-  - cd rails && bundle install --retry=3 && cd ..
-  - docker-compose run webpack npm run build:dev
-
 script:
+  # Run RSpec tests
   - cd rails
+  - bundle install --retry=3
   - bundle exec rake db:create db:migrate DATABASE_URL=postgres://localhost/homeroom_test
   - bundle exec rspec spec
+
+  # Teaspoon runs Jasmine tests, so it needs a build of the JS code.
+  - docker-compose run webpack npm run build:dev
+  - cp -r volumes/webpack_build/ rails/public/webpack_build/
   - bundle exec teaspoon
   - cd ..
+
+  # Build for production
   - aws/rails/build_from_travis.sh
 
 env:

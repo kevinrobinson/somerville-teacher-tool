@@ -1,14 +1,20 @@
-# Experimenting with provisioning AWS resources, and deploying containers manually
-This folder contains scripts for building Docker images for nodes, and for creating, provisioning and deploying them in AWS.  It's minimal and intended to be semi-automated rather than a one-button "turn on the cloud" experience.
+# Experimenting with provisioning AWS resources, and deploying containers to them
+This folder contains scripts to:
+ - build Docker images for production
+ - create and provision EC2 instances for running production containers
+ - deploy production containers to EC2 instances
+
+These scripts are minimal and intended to be semi-automated rather than a one-button "turn on the cloud" experience.
 
 For this example, let's say we want three Rails nodes, and we want them to connect to a primary Postgres database, with two slaves for failover.
 
 
-
 # Caveats
-There's little benefit for using containers over running on the instances directly.  Containers here are used mostly just a way to minimize the setup for development and production environments, and there's nothing packing multiple containers into an instance or doing any resource isolation.
+Containers here are used mostly just a way to minimize the setup for development and production environments, and there's nothing packing multiple containers into an instance or doing any resource isolation.
 
-The approach of using bash scripts to provision instances and create DNS records has the drawbacks of programming shell scripts and also of difficulty with sharing configuration information.  An example of this is sharing the Postgres IP addresses with Rails instances; currently this is entirely manual.  Configuration management and service discovery are not things that are supported at all here; using something like Chef might be a better solution, or a cluster management system like Kubernetes that can take advantage of the containerized services and better support discovery.
+There are not first-class ways to define roles, bundle containers together, or to do service discovery.  An example of this is sharing the Postgres IP addresses with Rails instances; currently this is entirely manual.  Configuration management and service discovery are not things that are supported at all here; using something like Chef might be a better solution, or a cluster management system like Kubernetes that can take advantage of the containerized services and better support discovery.
+
+Finally, the approach of using bash scripts to provision instances and create DNS records has all the drawbacks you'd expect when doing programming in shell scripts.
 
 I'm only experimenting and learning about AWS here, and so it's possible there are suggestions here that are not great security practices, particularly for large-scale public deployments.  You should probably read all of these articles before proceeding:
 
