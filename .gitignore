@@ -14,6 +14,7 @@ db/seeds/users/educators.seeds.rb
 
 # Don't check in compiled assets
 volumes/webpack_build/*
+rails/public/webpack_build/*
 
 # Don't check in deployment configuration (nothing sensitive anyway)
 deploy/config.sh
