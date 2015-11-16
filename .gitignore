@@ -1,31 +1,19 @@
 **.orig
 .DS_Store
 npm-debug.log
-/log
-/tmp
-/sketch
-/data
+
+# Rails
+/rails/log
+log
+/rails/tmp
 coverage
 config/local_env.yml
 config/initializers/capistrano_server.rb
 db/seeds/users/educators.seeds.rb
-node_modules
-scripts/config.sh
+
 
 # Don't check in compiled assets
-webpack/dist_dev/
-webpack/dist_production/*
-public/webpack_dev/*
-public/js/*
+volumes/webpack_build/*
 
-# Don't check in script configuration (nothing sensitive anyway)
-scripts/config.sh
-
-
-## Environment normalisation:
-/.bundle
-# these should all be checked in to normalise the environment:
-# Gemfile.lock, .ruby-version, .ruby-gemset
-
-# unless supporting rvm < 1.11.0 or doing something fancy, ignore this:
-.rvmrc
+# Don't check in deployment configuration (nothing sensitive anyway)
+deploy/config.sh

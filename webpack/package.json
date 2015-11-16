@@ -3,10 +3,9 @@
   "version": "0.1.0",
   "main": "assets/javascripts/index.js",
   "scripts": {
-    "clean": "rm -rf dist_dev/* dist_production/*",
-    "watch": "webpack --config webpack.config.development.js --progress --colors --watch",
-    "build:dev": "webpack --config webpack.config.development.js --progress --colors",
-    "build:production": "webpack --config webpack.config.production.js --progress --colors"
+    "watch": "webpack --config config/webpack.config.development.js --progress --colors --watch",
+    "build:dev": "webpack --config config/webpack.config.development.js --progress --colors",
+    "build:production": "webpack --config config/webpack.config.production.js --progress --colors"
   },
   "dependencies": {
     "jquery": "^2.1.4",

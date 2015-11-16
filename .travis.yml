@@ -13,14 +13,16 @@ branches:
     - master
 
 install:
-  - bundle install --retry=3
+  - cd rails && bundle install --retry=3 && cd ..
   - docker-compose run webpack npm run build:dev
 
 script:
+  - cd rails
   - bundle exec rake db:create db:migrate DATABASE_URL=postgres://localhost/homeroom_test
   - bundle exec rspec spec
   - bundle exec teaspoon
-  - ./scripts/travis_production_build.sh
+  - cd ..
+  - aws/rails/build_from_travis.sh
 
 env:
   global:
