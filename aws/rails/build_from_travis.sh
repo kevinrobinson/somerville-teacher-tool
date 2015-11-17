@@ -12,4 +12,4 @@ fi
 docker login --email=$DOCKER_EMAIL --password=$DOCKER_PASSWORD --username=$DOCKER_USERNAME
 
 # Build and push the Rails image
-aws/rails/build.sh
+./aws/rails/build.sh
