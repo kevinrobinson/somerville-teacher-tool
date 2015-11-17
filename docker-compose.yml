@@ -3,26 +3,27 @@
 # Asset compilation works by having the webpack container continually build an artifact,
 # and that artifact being mounted for Rails to serve statically.
 rails:
-  build: .
-  volumes:
-    - .:/mnt/somerville-teacher-tool
-  working_dir: /mnt/somerville-teacher-tool
+  build: rails/.
   environment:
     DATABASE_URL: postgresql://postgres@postgres # overrides hostname and username
   ports:
     - "3000:3000"
   links:
     - postgres
+  working_dir: /mnt/rails
   command: bundle exec rails s -b '0.0.0.0'
+  volumes:
+    - ./rails:/mnt/rails
+    - ./volumes/webpack_build:/mnt/rails/public/webpack_build
+
 
 webpack:
   build: webpack/.
   command: npm run watch
-  # TODO(kr) improve this mapping for root files, like Webpack config
   volumes:
+    - ./webpack/config:/mnt/webpack/config
     - ./webpack/src:/mnt/webpack/src
-    - ./webpack/dist_production:/mnt/webpack/dist_production
-    - ./public/webpack_dev:/mnt/webpack/dist_dev
+    - ./volumes/webpack_build:/mnt/build
 
 postgres:
   image: postgres

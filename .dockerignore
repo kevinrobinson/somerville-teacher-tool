@@ -3,4 +3,4 @@ log
 tmp
 webpack
 
-scripts/config.sh
+aws/config.sh

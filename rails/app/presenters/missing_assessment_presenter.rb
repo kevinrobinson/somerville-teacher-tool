@@ -1,0 +1,3 @@
+class MissingStudentAssessmentPresenter
+
+end

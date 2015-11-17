@@ -1,2 +1,0 @@
-School.seed_somerville_schools
-InterventionType.seed_somerville_intervention_types
