@@ -12,6 +12,11 @@ branches:
   only:
     - master
 
+# Install the AWS CLI, so we can push asset artifacts up to S3 when merging to master.
+before_install:
+  - pip install --user awscli
+  - export PATH=$PATH:$HOME/.local/bin
+
 script:
   # Run RSpec tests
   - cd rails

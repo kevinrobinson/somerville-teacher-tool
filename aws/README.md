@@ -132,11 +132,11 @@ Keep in mind this is intended for a small number of admins and developers active
 # http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/user-data.html
 
 ```
-$ scripts/base_add_user.sh rails2001 krobinson ~/.ssh/krobinson.pub
+$ scripts/add_user.sh rails2001 krobinson ~/.ssh/krobinson.pub
 Copying public key file /Users/krobinson/.ssh/krobinson.pub for krobinson to rails2001.yourdomainname.com...
 krobinson.pub                                                                                              100%  409     0.4KB/s   00:00
 Copying remote script...
-remote_add_user.sh                                                                                             100%  668     0.7KB/s   00:00
+add_user_remote.sh                                                                                             100%  668     0.7KB/s   00:00
 Changing permissions...
 
 
@@ -149,7 +149,7 @@ Run this command on your local shell:
   $ ssh -o StrictHostKeyChecking=no -i /Users/krobinson/.ssh/superuser.pem ec2-user@rails2001.yourdomainname.com
 
 And then run this command on the remote box:
-  $ sudo /tmp/remote_add_user.sh krobinson && rm /tmp/remote_add_user.sh && exit
+  $ sudo /tmp/add_user_remote.sh krobinson && rm /tmp/add_user_remote.sh && exit
 
 After that that user can ssh into the box with:
   $ ssh rails2001.yourdomainname.com
@@ -162,7 +162,7 @@ Following those instructions will add the user, set them up for SSH-key-only acc
 Afterward, you can also set up password-less sudo, since these users will have SSH-key-only access and won't have passwords.  This will apply to all users.  You can use a helper script to ssh in:
 
 ```
-$ scripts/base_superuser_ssh.sh rails2001
+$ aws/base/superuser_ssh.sh rails2001
 ```
 
 and then remotely run:
@@ -186,7 +186,7 @@ Instances don't yet have the packages them need to be able to run services in co
 
 First, ssh into the instance:
 ```
-$ scripts/base_superuser_ssh.sh rails2001
+$ aws/base/superuser_ssh.sh rails2001
 ```
 
 Then install the needed packages and start the Docker daemon:
@@ -200,14 +200,14 @@ See http://docs.aws.amazon.com/AmazonECS/latest/developerguide/docker-basics.htm
 #### Additional provisioning for Postgres instances
 The Postgres instances need some additional provisioning, since they'll need to format and mount the EBS volume that was created and attached to the instance when it was created.
 
-This is semi-automated.  You can use the `scripts/postgres_provision.sh` script to do this, `scp` it to the Postgres node, `chmod` it for `u+x` and then run it to format the volume at mount it at `/mnt/ebs-a` like the deploy script expects.
+This is semi-automated.  You can use the `aws/postgres/provision_remote.sh` script to do this, `scp` it to the Postgres node, `chmod` it for `u+x` and then run it to format the volume at mount it at `/mnt/ebs-a` like the deploy script expects.
 
 You should only do this on a newly created instance.  It formats the attached EBS volume, which means it erases any data that was stored on it.  If you're bringing up a new node and attaching an existing EBS volume, you should mount the volume manually.
 
 
 
 # Building containers for production
-You can do this manually with the `scripts/rails_build.sh` script.  The next step would be to move that to a CI step, (eg. one that's triggered when merging code into master).  It builds the production assets, builds the production container image, and then pushes the image to Docker Hub.
+You can do this manually with the `aws/rails/builds.sh` script.  The next step would be to move that to a CI step, (eg. one that's triggered when merging code into master).  It builds the production assets, builds the production container image, and then pushes the image to Docker Hub.
 
 You can run this locally or on a separate EC2 instance, but either way will need Docker installed and the `docker login` to have proper credentials.
 
@@ -222,7 +222,7 @@ Deploying containers is a semi-automated process.
 
 First, in order to communicate with Docker Hub, you'll need to manually run `docker login` on the production instance to authenticate.  This authorization will be cached.  You'll also need to add the deploying user to the `docker` user group.
 
-Second, run the local script `scripts/rails_deploy.sh` to submit a deploy.  This script will query AWS for configuration information needed to perform the deploy, copy a script to the production instance that will perform the deploy, and then execute it.  The first pull may take a little while since it's pulling each layer of the container image, but these are immutable and cached, so subsequent pulls will be faster.
+Second, run the local script `aws/rails/deploy.sh` to submit a deploy.  This script will query AWS for configuration information needed to perform the deploy, copy a script to the production instance that will perform the deploy, and then execute it.  The first pull may take a little while since it's pulling each layer of the container image, but these are immutable and cached, so subsequent pulls will be faster.
 
 Third, check that the service is up!
 
@@ -238,17 +238,17 @@ TODO(kr) create deploy user for this, automate more of the authorization and use
 The sequence matters here, since we need to seed the production database, and we'd like to use Rails to do that.
 
   1. Deploy the master Postgres instance like normal, grab its IP address.
-  2. Use the `scripts/rails_seed.sh` script to run a production container on a Rails instance and seed the database.  This is currently setup to seed with demo data.
+  2. Use the `aws/rails/seed.sh` script to run a production container on a Rails instance and seed the database.  This is currently setup to seed with demo data.
     ```
     # locally
-    $ scp scripts/rails_seed.sh rails2001.kevinrobinson-play.com:~
+    $ scp aws/rails/seed.sh rails2001.kevinrobinson-play.com:~
     $ ssh rails2001.kevinrobinson-play.com
 
     # (now remote)
     $ chmod u+x rails_seed.sh
     $ sudo ./rails_seed.sh <Postgres IP address>
 
-  3. Deploy the Rails instances with `scripts/rails_deploy.sh <Postgres IP address>`
+  3. Deploy the Rails instances with `aws/rails/deploy.sh <Postgres IP address>`
   4. Try it!
 
 

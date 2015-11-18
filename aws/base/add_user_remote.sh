@@ -20,6 +20,6 @@ usermod -aG wheel $USERNAME
 
 # The user won't have access to run Docker commands by default, but can sudo to run them.
 # If you'd like to change this, add the user to the docker group after Docker is installed on
-# the instance (eg, `usermod -a -G docker $USERNAME`).
+# the instance (eg, usermod -a -G docker $USERNAME).
 
 echo "Done."
