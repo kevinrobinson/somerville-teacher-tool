@@ -27,12 +27,12 @@ First, install VirtualBox and Docker Toolbox.
 
   - Install VirtualBox 5.0.8: https://www.virtualbox.org/wiki/Downloads
   - Install Docker Toolbox: http://docs.docker.com/mac/started/
-  - Use docker-machine to create a new Docker host: `https://docs.docker.com/machine/get-started/`
+  - Use docker-machine to create a new Docker host: https://docs.docker.com/machine/get-started/
   - For convenience, you can add the IP from `docker-machine ip dev` as a line in `/etc/hosts` so you can work with `http://docker:3000` in your browser.
 
 Run the project using `docker-compose`:
 
-  - Rebuild all container images: `docker-compose build` (slow the first time)
+  - Rebuild all container images (slow the first time): `docker-compose build`
   - Start bash in a Rails container to create the database and seed it:
     ```
     # Start a new Rails container from your laptop
@@ -46,9 +46,11 @@ Run the project using `docker-compose`:
     ```
   - Start all the services: `docker-compose up`
   - Open `http://docker:3000` in a browser!
+  - Use `docker` in place of `localhost` for other steps in this README, and run other commands within the `rails` container.
 
 See the [Webpack README](webpack/README.md) for more information about the build setup.
-See the [scripts README](scripts/README.md) for information about production builds and deploys.
+
+See the [aws README](aws/README.md) for information about building containers for production, provisioning AWS resources, and deploying to EC2 instances.
 
 ### Setting up demo data
 
@@ -106,6 +108,9 @@ git commit --no-verify
 ### Heroku
 
 We deployed this app on Heroku once and you can, too. Be sure to set config variables for DEVISE_SECRET_KEY and SECRET_KEY_BASE before deploying.
+
+### Amazon Web Services, EC2
+See the [aws README](aws/README.md) for information on provisioning EC2 instances, deploying to EC2 and using ELB and CloudFront.
 
 ### Your own server
 
