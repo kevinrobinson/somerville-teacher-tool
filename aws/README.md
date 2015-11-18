@@ -10,13 +10,13 @@ For this example, let's say we want three Rails nodes, and we want them to conne
 
 
 # Caveats
-Containers here are used mostly just a way to minimize the setup for development and production environments, and there's nothing packing multiple containers into an instance or doing any resource isolation.
+Containers here are used mostly just a way to minimize the setup for development and production environments, and there's nothing packing multiple containers into an instance or doing any resource isolation.  There are other services like Amazon ECS that might be worth investigating if you're looking for something more managed.
 
-There are not first-class ways to define roles, bundle containers together, or to do service discovery.  An example of this is sharing the Postgres IP addresses with Rails instances; currently this is entirely manual.  Configuration management and service discovery are not things that are supported at all here; using something like Chef might be a better solution, or a cluster management system like Kubernetes that can take advantage of the containerized services and better support discovery.
+The script-based approach here doesn't have first-class ways to define roles, bundle containers together, or to do service discovery.  An example of this is how the Rails deploy script queries AWS for the primary Postgres IP in order to pass it as configuration when starting the Rails container.  Configuration management and service discovery are not things that are supported at all here; using something like Chef might be a better solution, or a cluster management system like Kubernetes that can take advantage of services being containerized and provides higher-level abstractions for grouping and linking containers.
 
 Finally, the approach of using bash scripts to provision instances and create DNS records has all the drawbacks you'd expect when doing programming in shell scripts.
 
-I'm only experimenting and learning about AWS here, and so it's possible there are suggestions here that are not great security practices, particularly for large-scale public deployments.  You should probably read all of these articles before proceeding:
+I'm only experimenting and learning about AWS here, and so it's possible there are suggestions here that are not great security practices, particularly for public deployments.  You should probably read all of these articles if you want to know more:
 
   - http://docs.aws.amazon.com/general/latest/gr/aws-access-keys-best-practices.html
   - http://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html
@@ -25,18 +25,49 @@ I'm only experimenting and learning about AWS here, and so it's possible there a
 
 
 # config.sh
-This defines configuration variables.  You should perform the setup manually to set this up in AWS (or write a new script to do so), and then set these configuration values here.  Other scripts source this script for the environment variables it defines, and so this needs to be set up correctly for any scripts to work.
+This defines configuration variables.  You should manually perform the needed setup there (eg., creating security groups, adding the hosted zone in Route 53), or write a new script to do so.  Then define those configuration values in `config.sh`.  Other scripts source this script for the environment variables it defines, and so this needs to be set up correctly for any scripts to work.
+
+This file is not checked into source control, so an example file is included here:
+
+  ```
+  # This script defines environment variables about the AWS configuration that are
+  # used by other scripts.
+
+  # Credentials for authenticating with the AWS API
+  export KEY_NAME=
+
+  # For performing ssh operations on new boxes
+  export SUPERUSER=
+  export SUPERUSER_PEM_FILE=
+
+  # DNS and domain name configuration
+  export DOMAIN_NAME=
+  export HOSTED_ZONE_ID=
+
+  # Security group names, all tied to a specific availability zone at the moment.
+  # For now, create these manually and update here, but this could use
+  # some work to make it work across regions.
+  export SG_DEFAULT=
+  export SG_SSH_ACCESS=
+  export SG_WEB_TRAFFIC=
+  export SG_POSTGRES=
+
+  # AMI image for all nodes
+  export AMI_IMAGE_ID=
+  ```
 
 The security group names should be fairly self-descriptive.  You should set these up manually in the AWS UI (or write a new script).
 
 
-
-# Create the instances
+# Create instances
 #### Rails instances
-First, let's create the Rails nodes.  This will also tag them with names, and create DNS A records for them.  Our configuration here assumes it's using the domain `yourdomainname.com`.  If you're curious about the particular configuration of these nodes (eg., what instance type and AMI image, just check out the script).
+First, let's create the Rails instances.  This will also tag them with names, create DNS A records for them, and install Docker.
+
+Our configuration here assumes it's using the domain `yourdomainname.com`.  If you're curious about the particular configuration of these nodes (eg., what instance type and AMI image, just check out the script).
+
 
 ```
-$ time scripts/rails_create.sh rails2001
+$ time aws/rails/create.sh rails2001
 Creating Rails instance rails2001...
 Created i-2156cfe5...
 Waiting for instance to be 'pending'...
@@ -62,21 +93,24 @@ sys 0m0.980s
 
 After that, we can create two more in the same way:
 ```
-$ scripts/rails_create.sh rails2002
+$ aws/rails/create.sh rails2002
 ...
 
-$ scripts/rails_create.sh rails2003
+$ aws/rails/create.sh rails2003
 ...
 ```
+
+Note that these instances will be in the same region, and so updating these scripts to support multiple availability zones would be a good improvement.
+
 
 #### Postgres instances
 Next we'll do the same for the three Postgres instances.
 
-These instances have the same kind of creation script, but it also creates a separate EBS volume for mounting the database's data.  This means the data is stored separately from the EC2 instance running the process, so even if you (or Amazon) terminates the instance, you can start another instance that can mount the same data.  So the `postgres_create.sh` script will create an instance, create an EBS volume, and attach the volume and mount it at `/mnt/ebs-a` where the Postgres deploy scripts expect it to be.
+These instances have the same kind of creation script, but it also creates a separate EBS volume for mounting the database's data.  This means the data is stored separately from the EC2 instance running the process, so even if you (or Amazon) terminates the instance, you can start another instance that can mount the same data.  So the `aws/postgres/create.sh` script will create an instance, create an EBS volume, and attach the volume.  It also formats the new volume and mounts it at `/mnt/ebs-a` where the Postgres deploy scripts expect it to be.
 
 So the output will have a few more steps:
 ```
-$ time scripts/postgres_create.sh postgres2001
+$ time aws/postgres/create.sh postgres2001
 Creating Postgres instance postgres2001...
 Created instance i-001188c4...
 Waiting for instance to be 'pending'...
@@ -110,29 +144,26 @@ sys 0m1.539s
 
 Afterward, you can create the other two Postgres instances:
 ```
-$ scripts/postgres_create.sh postgres2002
-$ scripts/postgres_create.sh postgres2003
+$ aws/postgres/create.sh postgres2002
+$ aws/postgres/create.sh postgres2003
 ...
 
 ```
 
 
-## Provision the instances
-Awesome, so we created the nodes.  Now let's provision them so they have the proper users for accessing them through SSH, and have the packages installed that they'll need to run production containers.  This will be semi-automated, with scripts doing some work and walking you through the manual steps around enabling SSH access for users.
+## Provision instances for administrative access
+Awesome, so we created the nodes.  Their setup scripts also provisioned them with other software like Docker that they'll need to function in production.  Now let's provision them so they have the proper users for accessing them through SSH.  This will be semi-automated, with scripts doing some work and walking you through the manual steps around enabling SSH access for users.
 
 
 #### Set up user accounts
 To setup user accounts for SSH access, we need to know which accounts we want to create, and the public SSH keys for those accounts.  We'll walk through doing this for one account, and you can repeat the same process if you have several admins or developers who you want to grant access.  In order to do this process, we need the root EC2 user credentials, and this assumes you have that PEM file locally.
 
-This is semi-automated since there are restrictions on running sudo commands without a TTY.  I'm not sure how other provisioning systems work around this.
+This is semi-automated since there are restrictions on running sudo commands without a TTY.  This could be automated further with another file mapping remote usernames to public SSH keys, and then copying those and setting them up when the instance is initially created.  That'd be a good improvement.
 
-Keep in mind this is intended for a small number of admins and developers actively working on the system, so for now there's not any more sophisticated permissioning system.  Granting them ssh access gives them full access.
-
-# TODO(kr) run scripts to provision
-# http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/user-data.html
+Keep in mind this is intended for a small number of admins and developers actively working on the system, so for now there's not any more sophisticated permissioning system.  Granting users ssh access gives them full access to the production instance.
 
 ```
-$ scripts/add_user.sh rails2001 krobinson ~/.ssh/krobinson.pub
+$ aws/base/add_user.sh rails2001 krobinson ~/.ssh/krobinson.pub
 Copying public key file /Users/krobinson/.ssh/krobinson.pub for krobinson to rails2001.yourdomainname.com...
 krobinson.pub                                                                                              100%  409     0.4KB/s   00:00
 Copying remote script...
@@ -157,7 +188,7 @@ After that that user can ssh into the box with:
 Go ahead...
 ```
 
-Following those instructions will add the user, set them up for SSH-key-only access, and add them to the `wheel` group so they can perform `sudo` commands.
+Following those instructions will add the user, set them up for SSH-key-only access, and add them to the `wheel` group so they can perform `sudo` commands.  You might also want to add them to the `docker` group so they can run Docker commands without `sudo`.
 
 Afterward, you can also set up password-less sudo, since these users will have SSH-key-only access and won't have passwords.  This will apply to all users.  You can use a helper script to ssh in:
 
@@ -181,44 +212,16 @@ and uncomment out the line:
 This will let any user in `wheel` run commands as sudo, since they have SSH-key-only access and don't have passwords.
 
 
-#### Provision the instance to be able to run production containers
-Instances don't yet have the packages them need to be able to run services in containers.
-
-First, ssh into the instance:
-```
-$ aws/base/superuser_ssh.sh rails2001
-```
-
-Then install the needed packages and start the Docker daemon:
-```
-$ sudo yum update -y && sudo yum install -y docker && sudo service docker start
-```
-
-See http://docs.aws.amazon.com/AmazonECS/latest/developerguide/docker-basics.html to learn more.
-
-
-#### Additional provisioning for Postgres instances
-The Postgres instances need some additional provisioning, since they'll need to format and mount the EBS volume that was created and attached to the instance when it was created.
-
-This is semi-automated.  You can use the `aws/postgres/provision_remote.sh` script to do this, `scp` it to the Postgres node, `chmod` it for `u+x` and then run it to format the volume at mount it at `/mnt/ebs-a` like the deploy script expects.
-
-You should only do this on a newly created instance.  It formats the attached EBS volume, which means it erases any data that was stored on it.  If you're bringing up a new node and attaching an existing EBS volume, you should mount the volume manually.
-
 
 
 # Building containers for production
-You can do this manually with the `aws/rails/builds.sh` script.  The next step would be to move that to a CI step, (eg. one that's triggered when merging code into master).  It builds the production assets, builds the production container image, and then pushes the image to Docker Hub.
+There is a [Travis build](https://travis-ci.org/kevinrobinson/somerville-teacher-tool) set up for the project.  This will run tests for remote branches and pull requests, but also will build a production container on merges to master.  It also uploads asset artifacts to S3, so that the production container can point to them.
 
-You can run this locally or on a separate EC2 instance, but either way will need Docker installed and the `docker login` to have proper credentials.
-
-TODO(kr) move this to the Travis build
-
+If you'd like to build a production container you can do this locally or on a separate EC2 instance.  You'll need Docker Hub and AWS credentials configured, and then can run the `aws/rails/builds.sh` script.  Keep in mind this will push to the Docker Hub repository, and that subsequent deploys will pull from there.
 
 
 # Deploying containers on production instances
-If you're trying to deploy the service for the first time, you'll have to setup and seed the database first, see the `First deploy!` section below.
-
-Deploying containers is a semi-automated process.
+If you're trying to deploy the service for the first time, you'll have to setup and seed the database first.  See the `First deploy!` section below.
 
 First, in order to communicate with Docker Hub, you'll need to manually run `docker login` on the production instance to authenticate.  This authorization will be cached.  You'll also need to add the deploying user to the `docker` user group.
 
@@ -230,8 +233,7 @@ Currently, the deploy works by pulling the production container image from Docke
 
 Also note that this is a minimal deploy step, and doesn't do anything sophisticated with setting up monitoring, alerting or even using upstart to ensure that the process restarts.
 
-TODO(kr) create deploy user for this, automate more of the authorization and user steps.  Also clarify where these scripts should be broken up into, how and when configuration gets onto the box.
-
+If you'd lke to perform deploys sequentially across multiple instances in a role (eg., all Rails instances), you can use a minimal script to do this.  The command is `$ aws/deploy.sh rails 2001 2002`, and deploys to rails instances numbered from 2001 to 2002 in serial.  See the script for more information.
 
 
 # First deploy!
@@ -241,8 +243,8 @@ The sequence matters here, since we need to seed the production database, and we
   2. Use the `aws/rails/seed.sh` script to run a production container on a Rails instance and seed the database.  This is currently setup to seed with demo data.
     ```
     # locally
-    $ scp aws/rails/seed.sh rails2001.kevinrobinson-play.com:~
-    $ ssh rails2001.kevinrobinson-play.com
+    $ scp aws/rails/seed.sh rails2001.yourdomainname.com:~
+    $ ssh rails2001.yourdomainname.com
 
     # (now remote)
     $ chmod u+x rails_seed.sh
@@ -255,11 +257,11 @@ The sequence matters here, since we need to seed the production database, and we
 
 # Destroying things
 ### Instances
-You can destroy an instance, which will terminate the EC2 instance and delete the DNS record added by the create script with: `scripts/base_destroy_instance.sh`:
+You can destroy an instance, which will terminate the EC2 instance and delete the DNS record added by the create script with: `aws/base/destroy.sh`.  It's not particularly smart about handling failure, and will not remove any related volumes that were attached.
 
 
 #### DNS records
-You can delete DNS records with `scripts/base_delete_dns.sh`:
+You can delete DNS records with `aws/base/delete_dns_record.sh`:
 
 ```
 $ scripts/base_delete_dns.sh rails2001
