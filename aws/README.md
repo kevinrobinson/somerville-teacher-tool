@@ -249,6 +249,7 @@ The sequence matters here, since we need to seed the production database, and we
     # (now remote)
     $ chmod u+x rails_seed.sh
     $ sudo ./rails_seed.sh <Postgres IP address>
+    ```
 
   3. Deploy the Rails instances with `aws/rails/deploy.sh <Postgres IP address>`
   4. Try it!
