@@ -6,7 +6,7 @@
 
 echo "Cleaning previously built assets from dev or prod builds..."
 sudo ls -alt volumes/webpack_build/*
-sudo rm -rf volumes/webpack_build/* # because Docker commands run as sudo in Travis
+rm -rf volumes/webpack_build/*
 
 echo "Building production assets..."
 docker-compose run webpack npm run build:production
@@ -23,6 +23,6 @@ docker push kevinrobinson/somerville-teaching-tool:production_rails
 
 echo "Clearing any assets we generated in the process..."
 sudo ls -alt volumes/webpack_build/*
-sudo rm -rf volumes/webpack_build/* # because Docker commands run as sudo in Travis
+rm -rf volumes/webpack_build/*
 
 echo "Done."
