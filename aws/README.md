@@ -9,7 +9,7 @@ These scripts are minimal and intended to be semi-automated rather than a one-bu
 For this example, let's say we want three Rails nodes, and we want them to connect to a primary Postgres database, with two slaves for failover.
 
 
-# Caveats
+## Caveats
 Containers here are used mostly just a way to minimize the setup for development and production environments, and there's nothing packing multiple containers into an instance or doing any resource isolation.  There are other services like Amazon ECS that might be worth investigating if you're looking for something more managed.
 
 The script-based approach here doesn't have first-class ways to define roles, bundle containers together, or to do service discovery.  An example of this is how the Rails deploy script queries AWS for the primary Postgres IP in order to pass it as configuration when starting the Rails container.  Configuration management and service discovery are not things that are supported at all here; using something like Chef might be a better solution, or a cluster management system like Kubernetes that can take advantage of services being containerized and provides higher-level abstractions for grouping and linking containers.
@@ -24,7 +24,7 @@ I'm only experimenting and learning about AWS here, and so it's possible there a
 
 
 
-# config.sh
+## Initial setup, and config.sh
 This defines configuration variables.  You should manually perform the needed setup there (eg., creating security groups, adding the hosted zone in Route 53), or write a new script to do so.  Then define those configuration values in `config.sh`.  Other scripts source this script for the environment variables it defines, and so this needs to be set up correctly for any scripts to work.
 
 This file is not checked into source control, so an example file is included here:
@@ -59,7 +59,7 @@ This file is not checked into source control, so an example file is included her
 The security group names should be fairly self-descriptive.  You should set these up manually in the AWS UI (or write a new script).
 
 
-# Create instances
+## Creating instances
 #### Rails instances
 First, let's create the Rails instances.  This will also tag them with names, create DNS A records for them, and install Docker.
 
@@ -151,7 +151,7 @@ $ aws/postgres/create.sh postgres2003
 ```
 
 
-## Provision instances for administrative access
+## Provisioning instances for administrative access
 Awesome, so we created the nodes.  Their setup scripts also provisioned them with other software like Docker that they'll need to function in production.  Now let's provision them so they have the proper users for accessing them through SSH.  This will be semi-automated, with scripts doing some work and walking you through the manual steps around enabling SSH access for users.
 
 
@@ -190,6 +190,7 @@ Go ahead...
 
 Following those instructions will add the user, set them up for SSH-key-only access, and add them to the `wheel` group so they can perform `sudo` commands.  You might also want to add them to the `docker` group so they can run Docker commands without `sudo`.
 
+#### Password-less sudo
 Afterward, you can also set up password-less sudo, since these users will have SSH-key-only access and won't have passwords.  This will apply to all users.  You can use a helper script to ssh in:
 
 ```
@@ -213,14 +214,14 @@ This will let any user in `wheel` run commands as sudo, since they have SSH-key-
 
 
 
-
-# Building containers for production
+## Building production containers
 There is a [Travis build](https://travis-ci.org/kevinrobinson/somerville-teacher-tool) set up for the project.  This will run tests for remote branches and pull requests, but also will build a production container on merges to master.  It also uploads asset artifacts to S3, so that the production container can point to them.
 
 If you'd like to build a production container you can do this locally or on a separate EC2 instance.  You'll need Docker Hub and AWS credentials configured, and then can run the `aws/rails/builds.sh` script.  Keep in mind this will push to the Docker Hub repository, and that subsequent deploys will pull from there.
 
 
-# Deploying containers on production instances
+
+## Deploying production containers
 If you're trying to deploy the service for the first time, you'll have to setup and seed the database first.  See the `First deploy!` section below.
 
 First, in order to communicate with Docker Hub, you'll need to manually run `docker login` on the production instance to authenticate.  This authorization will be cached.  You'll also need to add the deploying user to the `docker` user group.
@@ -236,7 +237,8 @@ Also note that this is a minimal deploy step, and doesn't do anything sophistica
 If you'd lke to perform deploys sequentially across multiple instances in a role (eg., all Rails instances), you can use a minimal script to do this.  The command is `$ aws/deploy.sh rails 2001 2002`, and deploys to rails instances numbered from 2001 to 2002 in serial.  See the script for more information.
 
 
-# First deploy!
+
+## First deploy!
 The sequence matters here, since we need to seed the production database, and we'd like to use Rails to do that.
 
   1. Deploy the master Postgres instance like normal, grab its IP address.
@@ -255,12 +257,12 @@ The sequence matters here, since we need to seed the production database, and we
   4. Try it!
 
 
-# Maintenance
+## Maintenance
 Older Docker images are not currently garbage collected, so the production boxes will likely fill up their disks relatively quickly if you're deploying frequently.  The `aws/base/clean_docker_remote.sh` can be run on a remote instance to free some disk space from older images and volumes.  You should look at this script more carefully before running this on a running production instance.  A cron job to identify images and volumes that are not used by the running container, and then safely cleans them out would be a good improvement.
 
 
-# Destroying things
-### Instances
+## Destroying things
+#### Instances
 You can destroy an instance, which will terminate the EC2 instance and delete the DNS record added by the create script with: `aws/base/destroy.sh`.  It's not particularly smart about handling failure, and will not remove any related volumes that were attached.
 
 
