@@ -254,6 +254,9 @@ The sequence matters here, since we need to seed the production database, and we
   4. Try it!
 
 
+# Maintenance
+Older Docker images are not currently garbage collected, so the production boxes will likely fill up their disks relatively quickly if you're deploying frequently.  The `aws/base/clean_docker_remote.sh` can be run on a remote instance to free some disk space from older images and volumes.  You should look at this script more carefully before running this on a running production instance.  A cron job to identify images and volumes that are not used by the running container, and then safely cleans them out would be a good improvement.
+
 
 # Destroying things
 ### Instances
