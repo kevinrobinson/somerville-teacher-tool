@@ -12,6 +12,14 @@ branches:
   only:
     - master
 
+# Travis supports caching for package installs: http://docs.travis-ci.com/user/caching
+cache:
+  bundler: true
+  directories:
+    - rails/vendor/bundle
+    - webpack/node_modules
+    - $HOME/.cache/pip
+
 # Install the AWS CLI, so we can push asset artifacts up to S3 when merging to master.
 before_install:
   - pip install --user awscli
