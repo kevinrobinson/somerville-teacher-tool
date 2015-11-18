@@ -6,7 +6,7 @@
     <% if Rails.env.production? %>
       <%
         # Read manifest from Webpack build and point to the `app` entry.
-        path = Rails.root.join('public', 'webpack_build', 'production', 'webpack-assets.json')
+        path = Rails.root.join('public', 'production', 'webpack-assets.json')
         file = File.read(path)
         json = JSON.parse(file)
         @entrypoint_script_url = json['app']['js']

@@ -12,6 +12,7 @@ docker-compose run webpack npm run build:production
 
 echo "Copying manifest to Rails and copying assets to S3..."
 MANIFEST_FILE=webpack-assets.json
+cp volumes/webpack_build/production/$MANIFEST_FILE rails/public/production/$MANIFEST_FILE
 aws s3 cp volumes/webpack_build/production s3://somerville-teaching-tool-cdn/production/js --exclude "$MANIFEST_FILE" --recursive
 
 echo "Building the production Rails image..."
