@@ -7,8 +7,7 @@ INSTANCE_NAME=$1
 USERNAME=$2
 PUBLIC_KEY_FILE=$3
 
-source scripts/config.sh
-source scripts/base_functions.sh
+source aws/config.sh
 
 function superuser_scp {
   SOURCE=$1
@@ -33,10 +32,10 @@ echo "Copying public key file $PUBLIC_KEY_FILE for $USERNAME to $INSTANCE_NAME.$
 superuser_scp $PUBLIC_KEY_FILE /tmp/$USERNAME.pub
 
 echo "Copying remote script..."
-superuser_scp scripts/base_add_user_remote.sh /tmp/base_add_user_remote.sh
+superuser_scp aws/base/add_user_remote.sh /tmp/add_user_remote.sh
 
 echo "Changing permissions..."
-superuser_ssh chmod u+x /tmp/base_add_user_remote.sh
+aws/base/superuser_ssh chmod u+x /tmp/add_user_remote.sh
 
 echo;echo;echo;
 echo "Ready!"
@@ -47,7 +46,7 @@ echo "Run this command on your local shell:"
 echo "  $ ssh -o StrictHostKeyChecking=no -i $SUPERUSER_PEM_FILE $SUPERUSER@$INSTANCE_NAME.$DOMAIN_NAME"
 echo
 echo "And then run this command on the remote box:"
-echo "  $ sudo /tmp/base_add_user_remote.sh $USERNAME && rm /tmp/base_add_user_remote.sh && exit" 
+echo "  $ sudo /tmp/add_user_remote.sh $USERNAME && rm /tmp/add_user_remote.sh && exit" 
 echo
 echo "After that that user can ssh into the box with:"
 echo "  $ ssh $INSTANCE_NAME.$DOMAIN_NAME"

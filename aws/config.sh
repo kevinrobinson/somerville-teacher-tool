@@ -6,7 +6,7 @@ export KEY_NAME=hello-ec2
 
 # For performing ssh operations on new boxes
 export SUPERUSER=ec2-user
-export SUPERUSER_PEM_FILE=~/.ssh/pem/hello-ec2.pem
+export SUPERUSER_PEM_FILE=~/.ssh/pem/ec2-user.pem
 
 # DNS and domain name configuration
 export DOMAIN_NAME=kevinrobinson-play.com
