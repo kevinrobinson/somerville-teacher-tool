@@ -5,7 +5,6 @@
 # Need docker hub credentials to have been set beforehand.
 
 echo "Cleaning previously built assets from dev or prod builds..."
-ls -alt volumes/webpack_build/*
 rm -rf volumes/webpack_build/*
 
 echo "Building production assets..."
@@ -22,7 +21,6 @@ echo "Pushing the production Rails image to the Docker registry..."
 docker push kevinrobinson/somerville-teacher-tool:production_rails
 
 echo "Clearing any assets we generated in the process..."
-ls -alt volumes/webpack_build/*
 rm -rf volumes/webpack_build/*
 
 echo "Done."
