@@ -5,7 +5,8 @@
 # Need docker hub credentials to have been set beforehand.
 
 echo "Cleaning previously built assets from dev or prod builds..."
-rm -rf volumes/webpack_build/*
+sudo ls -alt volumes/webpack_build/*
+sudo rm -rf volumes/webpack_build/* # because Docker commands run as sudo in Travis
 
 echo "Building production assets..."
 docker-compose run webpack npm run build:production
@@ -21,6 +22,7 @@ echo "Pushing the production Rails image to the Docker registry..."
 docker push kevinrobinson/somerville-teaching-tool:production_rails
 
 echo "Clearing any assets we generated in the process..."
-rm -rf volumes/webpack_build/*
+sudo ls -alt volumes/webpack_build/*
+sudo rm -rf volumes/webpack_build/* # because Docker commands run as sudo in Travis
 
 echo "Done."
