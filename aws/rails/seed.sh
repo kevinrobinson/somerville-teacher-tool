@@ -7,5 +7,5 @@ POSTGRES_IP_ADDRESS=$1
 docker run \
   -e 'RAILS_ENV=production' \
   -e "DATABASE_URL=postgresql://postgres@$POSTGRES_IP_ADDRESS/homeroom_production" \
-  kevinrobinson/somerville-teaching-tool:production_rails \
+  kevinrobinson/somerville-teacher-tool:production_rails \
   bundle exec rake db:setup db:seed:demo
