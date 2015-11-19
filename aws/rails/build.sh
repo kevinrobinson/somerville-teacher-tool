@@ -20,7 +20,7 @@ echo "Copying manifest to Rails and copying assets to S3..."
 MANIFEST_FILE=webpack-assets.json
 mkdir -p rails/public/webpack_build/production
 cp volumes/webpack_build/production/$MANIFEST_FILE rails/public/webpack_build/production/$MANIFEST_FILE
-aws s3 cp volumes/webpack_build/production s3://somerville-teaching-tool-cdn/production/js --exclude "$MANIFEST_FILE" --recursive
+# aws s3 cp volumes/webpack_build/production s3://somerville-teaching-tool-cdn/production/js --exclude "$MANIFEST_FILE" --recursive
 
 echo "Building the production Rails image..."
 docker build -t kevinrobinson/somerville-teacher-tool:production_rails rails
@@ -28,7 +28,9 @@ docker build -t kevinrobinson/somerville-teacher-tool:production_rails rails
 echo "Pushing the production Rails image to the Docker registry..."
 docker push kevinrobinson/somerville-teacher-tool:production_rails
 
-echo "Clearing any assets we generated in the process..."
-clean_assets
+# echo "Clearing any assets we generated in the process..."
+# clean_assets
 
 echo "Done."
+
+# Travis deploys to S3 separately
