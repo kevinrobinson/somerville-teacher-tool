@@ -1,7 +1,9 @@
 # Submit a deploy to a production instance.
 # usage: aws/rails/deploy.sh
-# expects: POSTGRES_USER and POSTGRES_PASSWORD
+# TODO(kr) password
 INSTANCE_NAME=$1
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=
 
 source aws/config.sh
 

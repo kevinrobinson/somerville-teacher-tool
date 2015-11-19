@@ -265,6 +265,15 @@ This is dangerous - make sure to stop the Postgres container and unmount the EBS
 
 Detaching the ELB volume from the instance in AWS before unmounting the EBS volume is a bad idea, even for testing failure modes as it can put the EBS volume in a `busy` state indefinitely.  See http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-detaching-volume.html.
 
+#### Manual clean shutdown
+```
+docker stop postgres
+docker rm postgres
+sudo umount -d /dev/xvdf
+```
+
+This didn't work, I wasn't able to manually unmount the EBS volume.
+
 
 #### Instance is rebooted
 
