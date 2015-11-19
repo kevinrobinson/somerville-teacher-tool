@@ -12,5 +12,8 @@ elif [ "$TRAVIS_BRANCH" != "master" ]; then
   exit 0
 fi
 
+echo "Setting Docker Hub credentials..."
+docker login --email=$DOCKER_EMAIL --password=$DOCKER_PASSWORD --username=$DOCKER_USERNAME
+
 echo "Building and pushing the production Rails image..."
 sudo aws/rails/build.sh
