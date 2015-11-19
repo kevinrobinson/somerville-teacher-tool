@@ -29,7 +29,7 @@ script:
   - cd ..
 
   # Build for production
-  - aws/rails/production_build_from_travis.sh
+  - aws/rails/build_from_travis.sh
 
 env:
   global:
