@@ -1,3 +1,8 @@
+var React = require('react');
+var InterventionsContainer = require('./interventions/interventions_container.jsx');
+
+
+
 (function(root) {
 
   var ProfileChartData = function initializeProfileChartData (name, data, color) {
@@ -112,13 +117,23 @@ $(function() {
       InterventionsController.selectIntervention($(this));
     });
 
+
     // Tabs
     $('.tab-select').click(function() {
       var tab = $(this).data('tab');
       $('.tab').hide();
       $('.tab-select').removeClass('selected');
       $(this).addClass('selected');
-      $('#' + tab).show();
+
+      if (tab !== 'interventions') {
+        $('#' + tab).show();
+        return;
+      }
+
+      // Interventions tab
+      var interventionsTabEl = document.getElementById('interventions-tab');
+      $(interventionsTabEl).show();
+      React.render(InterventionsContainer, interventionsTabEl);
     });
 
     $('.add-progress-note-area').hide();

@@ -14,7 +14,11 @@ module.exports = {
       { test: /\.scss$/, loaders: ["style", "css", "sass"] },
       { test: /\.png$/, loader: 'url-loader?limit=100000' },
       { test: /\.jpg$/, loader: 'file-loader' },
-      { test: /\.svg$/, loader: 'file-loader' }
+      { test: /\.svg$/, loader: 'file-loader' },
+      { test: /\.jsx$/, loader: 'babel', query: {
+        cacheDirectory: true,
+        presets: ['es2015', 'react', 'stage-2']
+      } }
     ]
   }
 };
