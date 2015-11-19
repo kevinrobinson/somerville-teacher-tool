@@ -19,6 +19,7 @@ INSTANCE_ID=$(aws ec2 run-instances \
   --instance-type t2.micro \
   --key-name $KEY_NAME \
   --security-group-ids $SG_DEFAULT $SG_SSH_ACCESS $SG_WEB_TRAFFIC \
+  --user-data file://$STARTUP_SCRIPT_TMPFILE \
   --output text \
   --query 'Instances[*].InstanceId')
 echo "Created $INSTANCE_ID..."

@@ -1,6 +1,9 @@
 # Submit a deploy to a production instance.
-# usage: scripts/rails_submit_deploy.sh
+# usage: aws/rails/deploy.sh
+# TODO(kr) password
 INSTANCE_NAME=$1
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=
 
 source aws/config.sh
 
@@ -12,8 +15,9 @@ echo "Found: $POSTGRES_IP_ADDRESS"
 
 echo "Copying deploy script..."
 ssh $INSTANCE_NAME.$DOMAIN_NAME 'rm -rf ~/deploy; mkdir ~/deploy'
-scp -r aws/rails/deploy_remote.sh $INSTANCE_NAME.$DOMAIN_NAME:~/deploy
-ssh $INSTANCE_NAME.$DOMAIN_NAME chmod u+x deploy/deploy_remote.sh
+scp -r aws/rails/remote_deploy.sh $INSTANCE_NAME.$DOMAIN_NAME:~/deploy
+ssh $INSTANCE_NAME.$DOMAIN_NAME chmod u+x deploy/remote_deploy.sh
 
 echo "Submitting deploy command..."
-ssh $INSTANCE_NAME.$DOMAIN_NAME deploy/deploy_remote.sh $POSTGRES_IP_ADDRESS
+DATABASE_URL=postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@$POSTGRES_IP_ADDRESS/homeroom_production
+ssh $INSTANCE_NAME.$DOMAIN_NAME deploy/remote_deploy.sh $DATABASE_URL
