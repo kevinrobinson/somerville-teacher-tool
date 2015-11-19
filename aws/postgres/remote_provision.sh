@@ -4,13 +4,6 @@
 echo "Installing docker..."
 yum update -y && yum install -y docker
 
-# # Make it writeable by the docker group (the user running the production
-# # containers must be in this group).
-# set_permissions_for_docker() {
-#   chown root:docker $1
-#   chmod uga+rwx $1
-# }
-
 echo "Formatting and mounting EBS volume..."
 MOUNT_POINT=/mnt/ebs-a
 STORAGE_DEVICE=/dev/xvdf
@@ -27,10 +20,8 @@ mount -a
 rm /etc/fstab.orig
 echo "Done mounting $STORAGE_DEVICE at $MOUNT_POINT."
 
-# echo "Creating folders for Postgres volumes and setting permissions..."
+echo "Creating folder for Postgres volumes..."
 mkdir -p $POSTGRES_VOLUMES
-# set_permissions_for_docker $MOUNT_POINT
-# set_permissions_for_docker $POSTGRES_VOLUMES
 
 # This needs to be done after the volume is mounted.
 # See: https://github.com/docker/docker/issues/5489#issuecomment-141438777

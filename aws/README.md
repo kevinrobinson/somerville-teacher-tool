@@ -242,13 +242,42 @@ The sequence matters here, since we need to seed the production database, and we
   4. Try it!
 
 
-## Maintenance
+## Postgres availability and failure
+This iteration doesn't address availability or failure of the primary Postgres instance, but here are some notes on the current status.
+
+#### Impact of failure
+In general, when the primary Postgres instance goes completely down (e.g., the process or instance is stopped), the Rails processes will time out talking to the database, and so those end-user requests will hang until they hit the timeout.  Within a few seconds, Rails instances will start failing the health check and ELB will pull them all out of service.  After that point, ELB will return a 503 for all requests since there are no backend instances that can respond to requests, and the site will be down.
+
+#### Postgres process exits, container is stopped, or container is removed
+This does nothing to the data on the EBS volume.  Start a new Postgres container up with the deploy script mounts the the EBS volume into the container, and it's back up.
+
+### EBS volume is unmounted
+
+
+#### Detaching the EBS volume
+This is dangerous - make sure to unmount first.  Detaching the ELB volume from the instance in AWS before unmounting the EBS volume is a bad idea, even for testing failure modes as it can put the EBS volume in a `busy` state indefinitely.  See http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-detaching-volume.html.
+
+
+#### Instance is rebooted
+
+
+#### Instance is stopped
+First, let's bring the Postgres instance and process back up, and then we can deploy the Rails instances so that they point to the new IP for the primary Postgres node.  After they're healthy, ELB will put them back into service and the site will come back up.
+
+After starting up the Postgres node, the EBS volume will still be attached, and `/etc/fstab` will still have the entry to mount it at `/mnt/ebs-a`.  You should be able to see the Postgres data folder in `/mnt/ebs-a`, although it will require sudo permissions to see inside.
+
+#### Instance is terminated
+
+
+
+
+## Other maintenance notes
 Older Docker images are not currently garbage collected, so the production boxes will likely fill up their disks relatively quickly if you're deploying frequently.  The `aws/base/clean_docker_remote.sh` can be run on a remote instance to free some disk space from older images and volumes.  You should look at this script more carefully before running this on a running production instance.  A cron job to identify images and volumes that are not used by the running container, and then safely cleans them out would be a good improvement.
 
 
 ## Destroying things
 #### Instances
-You can destroy an instance, which will terminate the EC2 instance and delete the DNS record added by the create script with: `aws/base/destroy.sh`.  It's not particularly smart about handling failure, and will not remove any related volumes that were attached.
+You can destroy an instance, which will terminate the EC2 instance and delete the DNS record added by the create script with: `aws/base/destroy.sh`.  It's not particularly smart about handling failure, and will not remove any related volumes that were attached for Postgres instances.
 
 
 #### DNS records
