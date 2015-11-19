@@ -3,9 +3,9 @@
 # and then attaching and mounting that EBS volume.
 # Outputs the instance-id.
 #
-# example: postgres_create.sh INSTANCE_NAME primary
+# example: postgres_create.sh INSTANCE_NAME
 INSTANCE_NAME=$1
-POSTGRES_ROLE=$2
+POSTGRES_ROLE=primary
 
 source aws/config.sh
 

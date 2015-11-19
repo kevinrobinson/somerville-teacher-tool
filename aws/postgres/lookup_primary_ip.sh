@@ -6,7 +6,6 @@
 
 source aws/config.sh
 
-INSTANCE_NAME=postgres2001
 INSTANCE_ID=$(aws ec2 describe-instances --filters "Name=tag:PostgresRole,Values=primary" --output text --query 'Reservations[*].Instances[*].InstanceId')
 IP_ADDRESS=$(aws/base/ip_for_instance.sh $INSTANCE_ID)
 echo $IP_ADDRESS

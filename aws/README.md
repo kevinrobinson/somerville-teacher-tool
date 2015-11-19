@@ -110,7 +110,7 @@ These instances have the same kind of creation script, but it also creates a sep
 
 So the output will have a few more steps:
 ```
-$ time aws/postgres/create.sh postgres2001 primary
+$ time aws/postgres/create.sh postgres2001
 Creating Postgres instance postgres2001...
 Created instance i-001188c4...
 Waiting for instance to be 'pending'...
@@ -248,14 +248,22 @@ This iteration doesn't address availability or failure of the primary Postgres i
 #### Impact of failure
 In general, when the primary Postgres instance goes completely down (e.g., the process or instance is stopped), the Rails processes will time out talking to the database, and so those end-user requests will hang until they hit the timeout.  Within a few seconds, Rails instances will start failing the health check and ELB will pull them all out of service.  After that point, ELB will return a 503 for all requests since there are no backend instances that can respond to requests, and the site will be down.
 
-#### Postgres process exits, container is stopped, or container is removed
+#### Postgres container is stopped and removed
 This does nothing to the data on the EBS volume.  Start a new Postgres container up with the deploy script mounts the the EBS volume into the container, and it's back up.
 
 ### EBS volume is unmounted
+This is dangerous - make sure to stop the Postgres container first.
 
+This is a bit confusing.  Running `sudo umount -d /dev/xvdf` unmounts the EBS volume.  But the running Docker container still can read from the database table just fine.  I thought this might just be cached in memory, but inserting worked as well.  There was the same behavior after stopping the running container, removing it, and starting another one.
 
-#### Detaching the EBS volume
-This is dangerous - make sure to unmount first.  Detaching the ELB volume from the instance in AWS before unmounting the EBS volume is a bad idea, even for testing failure modes as it can put the EBS volume in a `busy` state indefinitely.  See http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-detaching-volume.html.
+It was only after restarting the Docker service that the container behaved as expecting.  I suspect this is becuase of the low-level Docker volume mounting implementation, and related to https://github.com/docker/docker/issues/5489#issuecomment-141438777.
+
+After unmounting the EBS volume, stopping and removing the Docker daemon, restarting Docker, and starting up a run container, the behavior was as I expected.  The container couldn't mount the host volume anymore because after unmounting the EBS volume, there wasn't anything at that path on the host file system anymore.  It'd be nice if Docker output a warning or error message when the volume mounting failed, but I didn't look into what it would take to add this.
+
+#### EBS volume is detached
+This is dangerous - make sure to stop the Postgres container and unmount the EBS volume first.
+
+Detaching the ELB volume from the instance in AWS before unmounting the EBS volume is a bad idea, even for testing failure modes as it can put the EBS volume in a `busy` state indefinitely.  See http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-detaching-volume.html.
 
 
 #### Instance is rebooted
@@ -268,11 +276,6 @@ After starting up the Postgres node, the EBS volume will still be attached, and 
 
 #### Instance is terminated
 
-
-
-
-## Other maintenance notes
-Older Docker images are not currently garbage collected, so the production boxes will likely fill up their disks relatively quickly if you're deploying frequently.  The `aws/base/clean_docker_remote.sh` can be run on a remote instance to free some disk space from older images and volumes.  You should look at this script more carefully before running this on a running production instance.  A cron job to identify images and volumes that are not used by the running container, and then safely cleans them out would be a good improvement.
 
 
 ## Destroying things
@@ -296,3 +299,22 @@ Submitted at 2015-11-12T17:40:13.279Z.
 Done deleting DNS record for rails2001.yourdomainname.
 ```
 
+
+
+## Other notes
+#### Reconnecting to Postgres
+Rails doesn't seem able to reconnect to Postgres after the container is stopped and restarted.  This means anytime Postgres is restarted, the Rails instances need to be restarted as well.
+
+#### Cleaning up Docker images
+Older Docker images are not currently garbage collected, so the production boxes will likely fill up their disks relatively quickly if you're deploying frequently.  The `aws/base/clean_docker_remote.sh` can be run on a remote instance to free some disk space from older images and volumes.  You should look at this script more carefully before running this on a running production instance.  A cron job to identify images and volumes that are not used by the running container, and then safely cleans them out would be a good improvement.
+
+#### DNS problems on El Capitan
+In creating and destroying DNS records, I ran into a bunch of problems with DNS on my computer, where `dig` would report an IP but `ssh` would be unable to resolve the hostname.  Googling about it seems this is relatively common, and the commands to flush the DNS cache are:
+
+```
+# requires sudo
+function flush_dns {
+  dscacheutil -flushcache
+  killall -HUP mDNSResponder
+}
+```
