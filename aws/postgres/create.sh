@@ -3,8 +3,9 @@
 # and then attaching and mounting that EBS volume.
 # Outputs the instance-id.
 #
-# example: postgres_create.sh INSTANCE_NAME
+# example: postgres_create.sh INSTANCE_NAME primary
 INSTANCE_NAME=$1
+POSTGRES_ROLE=$2
 
 source aws/config.sh
 
@@ -14,7 +15,7 @@ INSTANCE_ID=$(aws ec2 run-instances \
   --instance-type t2.micro \
   --key-name $KEY_NAME \
   --security-group-ids $SG_DEFAULT $SG_SSH_ACCESS $SG_POSTGRES \
-  --user-data file://$(pwd)/aws/postgres/provision_remote.sh \
+  --user-data file://$(pwd)/aws/postgres/remote_provision.sh \
   --output text \
   --query 'Instances[*].InstanceId')
 echo "Created instance $INSTANCE_ID..."
@@ -24,6 +25,9 @@ aws/base/wait_for_instance_state.sh $INSTANCE_ID pending
 
 echo "Creating $INSTANCE_NAME name tag..."
 TAG_RESPONSE=$(aws ec2 create-tags --resources $INSTANCE_ID --tags Key=Name,Value=$INSTANCE_NAME)
+
+echo "Creating PostgresRole=$POSTGRES_ROLE tag..."
+TAG_RESPONSE=$(aws ec2 create-tags --resources $INSTANCE_ID --tags Key=PostgresRole,Value=$POSTGRES_ROLE)
 
 echo "Waiting for instance to be 'running'..."
 aws/base/wait_for_instance_state.sh $INSTANCE_ID running

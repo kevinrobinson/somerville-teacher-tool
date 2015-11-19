@@ -6,7 +6,7 @@ This folder contains scripts to:
 
 These scripts are minimal and intended to be semi-automated rather than a one-button "turn on the cloud" experience.
 
-For this example, let's say we want three Rails nodes, and we want them to connect to a primary Postgres database, with two slaves for failover.
+For this minimal example, let's say we want three Rails nodes, and we want them to connect to a primary Postgres database with no secondaries.
 
 
 ## Caveats
@@ -104,18 +104,19 @@ Note that these instances will be in the same region, and so updating these scri
 
 
 #### Postgres instances
-Next we'll do the same for the three Postgres instances.
+Next we'll do the same for a single primary Postgres instance.  Since adding secondaries involves some cooperation on the Rails side, this iteration doesn't yet add components for high availability or failover.  Those would be the critical next step in fully productionizing this, but for now this matches the level of fault-tolerance in a free Heroku deployment.
 
-These instances have the same kind of creation script, but it also creates a separate EBS volume for mounting the database's data.  This means the data is stored separately from the EC2 instance running the process, so even if you (or Amazon) terminates the instance, you can start another instance that can mount the same data.  So the `aws/postgres/create.sh` script will create an instance, create an EBS volume, and attach the volume.  It also formats the new volume and mounts it at `/mnt/ebs-a` where the Postgres deploy scripts expect it to be.
+These instances have the same kind of creation script, but it also creates a separate EBS volume for mounting the database's data.  This means the data is stored separately from the EC2 instance running the process, so even if you (or Amazon) terminates the instance, you can start another instance that can mount the same data.  The `aws/postgres/create.sh` script will create an instance, create an EBS volume, and attach the volume.  It also formats the new volume and mounts it at `/mnt/ebs-a` where the Postgres deploy scripts expect it to be.
 
 So the output will have a few more steps:
 ```
-$ time aws/postgres/create.sh postgres2001
+$ time aws/postgres/create.sh postgres2001 primary
 Creating Postgres instance postgres2001...
 Created instance i-001188c4...
 Waiting for instance to be 'pending'...
 done.
 Creating postgres2001 name tag...
+Creating PostgresRole=primary tag...
 Waiting for instance to be 'running'...
 .........done.
 Adding DNS entry for postgres2001.yourdomainname...
@@ -140,14 +141,6 @@ i-001188c4
 real  0m32.563s
 user  0m8.410s
 sys 0m1.539s
-```
-
-Afterward, you can create the other two Postgres instances:
-```
-$ aws/postgres/create.sh postgres2002
-$ aws/postgres/create.sh postgres2003
-...
-
 ```
 
 
@@ -182,16 +175,18 @@ Run this command on your local shell:
 And then run this command on the remote box:
   $ sudo /tmp/add_user_remote.sh krobinson && rm /tmp/add_user_remote.sh && exit
 
+If you'd like to enable password-less sudo access, do it now.
+
 After that that user can ssh into the box with:
   $ ssh rails2001.yourdomainname.com
 
 Go ahead...
 ```
 
-Following those instructions will add the user, set them up for SSH-key-only access, and add them to the `wheel` group so they can perform `sudo` commands.  You might also want to add them to the `docker` group so they can run Docker commands without `sudo`.
+Following those instructions will add the user, set them up for SSH-key-only access, and add them to the `wheel` group so they can perform `sudo` commands.  It will also add them to the `docker` group so that they can run Docker commands without `sudo`.
 
 #### Password-less sudo
-Afterward, you can also set up password-less sudo, since these users will have SSH-key-only access and won't have passwords.  This will apply to all users.  You can use a helper script to ssh in:
+You can also set up password-less sudo, since these users will have SSH-key-only access and won't have passwords.  This will apply to all users.  You can use a helper script to ssh in:
 
 ```
 $ aws/base/superuser_ssh.sh rails2001
@@ -242,17 +237,7 @@ If you'd lke to perform deploys sequentially across multiple instances in a role
 The sequence matters here, since we need to seed the production database, and we'd like to use Rails to do that.
 
   1. Deploy the master Postgres instance like normal, grab its IP address.
-  2. Use the `aws/rails/seed.sh` script to run a production container on a Rails instance and seed the database.  This is currently setup to seed with demo data.
-    ```
-    # locally
-    $ scp aws/rails/seed.sh rails2001.yourdomainname.com:~
-    $ ssh rails2001.yourdomainname.com
-
-    # (now remote)
-    $ chmod u+x rails_seed.sh
-    $ sudo ./rails_seed.sh <Postgres IP address>
-    ```
-
+  2. Check out the command in the `aws/rails/seed.sh` script to run a production container on a Rails instance and seed the database.  This is currently setup to seed with demo data.  ssh into a production Rails instance and run this kind of command.
   3. Deploy the Rails instances with `aws/rails/deploy.sh <Postgres IP address>`
   4. Try it!
 
