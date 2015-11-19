@@ -1,10 +1,11 @@
+#!/bin/bash
 # This builds artifacts needed by the production Rails image (eg, asset manifests).
 # It cleans folders, generates the artifacts and then builds and pushes the production image.
 #
 # Any tests should have run and passed at this point.
 # Need docker hub credentials to have been set beforehand.
 
-function clean_assets {
+clean_assets() {
   rm -rf volumes/webpack_build/*
   rm -rf rails/public/webpack_build/*  
 }
