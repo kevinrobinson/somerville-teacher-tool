@@ -20,7 +20,17 @@ body {
 <script type="text/babel">
 var fixtures = {
   riskByHomeroom: [{"label":"all","risk_buckets":[{"level":0,"count":5,"percentage":0.17},{"level":1,"count":4,"percentage":0.13},{"level":2,"count":5,"percentage":0.17},{"level":3,"count":16,"percentage":0.53}]},{"label":"fake-fifth-grade@example.com","risk_buckets":[{"level":0,"count":2,"percentage":0.13},{"level":1,"count":3,"percentage":0.2},{"level":2,"count":2,"percentage":0.13},{"level":3,"count":8,"percentage":0.53}]}],
-  riskByRace: [{"label":"all","risk_buckets":[{"level":0,"count":5,"percentage":0.17},{"level":1,"count":4,"percentage":0.13},{"level":2,"count":5,"percentage":0.17},{"level":3,"count":16,"percentage":0.53}]},{"label":"W","risk_buckets":[{"level":0,"count":2,"percentage":0.18},{"level":1,"count":1,"percentage":0.09},{"level":2,"count":1,"percentage":0.09},{"level":3,"count":7,"percentage":0.64}]},{"label":"A","risk_buckets":[{"level":0,"count":1,"percentage":0.2},{"level":1,"count":1,"percentage":0.2},{"level":2,"count":1,"percentage":0.2},{"level":3,"count":2,"percentage":0.4}]},{"label":"B","risk_buckets":[{"level":0,"count":1,"percentage":0.14},{"level":1,"count":1,"percentage":0.14},{"level":2,"count":3,"percentage":0.43},{"level":3,"count":2,"percentage":0.29}]},{"label":"H","risk_buckets":[{"level":0,"count":1,"percentage":0.14},{"level":1,"count":1,"percentage":0.14},{"level":2,"count":0,"percentage":0.0},{"level":3,"count":5,"percentage":0.71}]}]
+  riskByRace: [{"label":"all","risk_buckets":[{"level":0,"count":5,"percentage":0.17},{"level":1,"count":4,"percentage":0.13},{"level":2,"count":5,"percentage":0.17},{"level":3,"count":16,"percentage":0.53}]},{"label":"W","risk_buckets":[{"level":0,"count":2,"percentage":0.18},{"level":1,"count":1,"percentage":0.09},{"level":2,"count":1,"percentage":0.09},{"level":3,"count":7,"percentage":0.64}]},{"label":"A","risk_buckets":[{"level":0,"count":1,"percentage":0.2},{"level":1,"count":1,"percentage":0.2},{"level":2,"count":1,"percentage":0.2},{"level":3,"count":2,"percentage":0.4}]},{"label":"B","risk_buckets":[{"level":0,"count":1,"percentage":0.14},{"level":1,"count":1,"percentage":0.14},{"level":2,"count":3,"percentage":0.43},{"level":3,"count":2,"percentage":0.29}]},{"label":"H","risk_buckets":[{"level":0,"count":1,"percentage":0.14},{"level":1,"count":1,"percentage":0.14},{"level":2,"count":0,"percentage":0.0},{"level":3,"count":5,"percentage":0.71}]}],
+  allGaps: [{"measure":"risk_level","factor":"race","label":"W","student_count":11,"group_value":2.1818181818181817,"aggregate_value":2.1506849315068495,"normalized_gap":0.014475969889982478},{"measure":"risk_level","factor":"race","label":"A","student_count":5,"group_value":1.8,"aggregate_value":2.1506849315068495,"normalized_gap":-0.16305732484076438},{"measure":"risk_level","factor":"race","label":"B","student_count":7,"group_value":1.8571428571428572,"aggregate_value":2.1506849315068495,"normalized_gap":-0.13648771610555052},{"measure":"risk_level","factor":"race","label":"H","student_count":7,"group_value":2.2857142857142856,"aggregate_value":2.1506849315068495,"normalized_gap":0.0627843494085531},{"measure":"risk_level","factor":"program_assigned","label":"Sp Ed","student_count":11,"group_value":2.727272727272727,"aggregate_value":2.1506849315068495,"normalized_gap":0.2680949623624781},{"measure":"risk_level","factor":"program_assigned","label":"2Way English","student_count":6,"group_value":1.5,"aggregate_value":2.1506849315068495,"normalized_gap":-0.302547770700637},{"measure":"risk_level","factor":"program_assigned","label":"Reg Ed","student_count":9,"group_value":1.7777777777777777,"aggregate_value":2.1506849315068495,"normalized_gap":-0.17338995046001426},{"measure":"risk_level","factor":"program_assigned","label":"2Way Spanish","student_count":4,"group_value":1.75,"aggregate_value":2.1506849315068495,"normalized_gap":-0.1863057324840765},{"measure":"risk_level","factor":"disability","label":"Communication","student_count":5,"group_value":3.0,"aggregate_value":2.1506849315068495,"normalized_gap":0.394904458598726},{"measure":"risk_level","factor":"disability","label":"Specific LDs","student_count":3,"group_value":3.0,"aggregate_value":2.1506849315068495,"normalized_gap":0.394904458598726},{"measure":"risk_level","factor":"disability","label":"Emotional","student_count":2,"group_value":1.5,"aggregate_value":2.1506849315068495,"normalized_gap":-0.302547770700637},{"measure":"risk_level","factor":"disability","label":"Autism","student_count":3,"group_value":2.0,"aggregate_value":2.1506849315068495,"normalized_gap":-0.07006369426751599}]
+};
+
+
+var merge = function(a, b) {
+  var out = {};
+  Object.keys(a).concat(Object.keys(b)).forEach(function(key) {
+    out[key] = b[key] || a[key];
+  });
+  return out;
 };
 
 var styles = {
@@ -49,8 +59,36 @@ var App = React.createClass({
           <h2 style={styles.title}>Risk level by Race</h2>
           {this.renderRiskLevelsByLabel(fixtures.riskByRace)}
          </div>
+         <div style={{height: 50}} />
+         <div style={merge(styles.box, { height: 'auto' })}>
+          <h2 style={styles.title}>Increase in risk level by factors</h2>
+          {this.renderAllGaps(fixtures.allGaps)}
+        </div>
       </div>
     );
+  },
+
+  renderAllGaps: function(allGaps) {
+    var sortedGaps = allGaps.sort(function(a, b) { return Math.abs(b.normalized_gap) - Math.abs(a.normalized_gap); });
+    return <div style={{padding: 20}}>
+      {sortedGaps.map(function(gap) {
+        var key = [gap.measure, gap.factor, gap.label].join('-');
+        var totalBarWidth = 200;
+        var width = Math.abs(gap.normalized_gap * totalBarWidth/2);
+        var barStyles = (gap.normalized_gap > 0)
+          ? { left: totalBarWidth/2, background: 'rgba(255, 140, 0, 0.75)' }
+          : { left: totalBarWidth/2-width, background: 'rgba(0, 100, 0, 0.75)' };
+        var normalizedGapText = (gap.normalized_gap > 0 ? '+' : '') + Math.round(gap.normalized_gap * 100, 2) + '%';
+        return <div key={key} style={{lineHeight: 1.8}}>
+          <div style={{display: 'inline-block', width: 300}}>{gap.label}, {gap.factor}</div>
+          <span style={{display: 'inline-block', width: 50, paddingRight: 15, textAlign: 'right', color: 'black', fontWeight: 'bold' }}>{normalizedGapText}</span>
+          <div style={{width: totalBarWidth, background: '#eee', display: 'inline-block' }}>
+            <div style={merge(barStyles, { position: 'relative', width: width, display: 'inline-block' })}>&nbsp;</div>
+          </div>
+          <span style={{fontSize: 14, color: '#666', paddingLeft: 10}}>{gap.student_count} students</span>
+        </div>;
+      })}
+    </div>;
   },
 
   renderRiskLevelsByLabel: function(riskLevelsByLabel) {

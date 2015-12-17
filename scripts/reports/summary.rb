@@ -250,10 +250,88 @@ def main
   lines << AssessmentProfile.new.by_race(options)
   lines << newline_space
 
+  lines << "--- ALL GAPS by ALL FACTORS ---"
+  lines << 'What are the most significant gaps across all assessments, for all factors?'
+  lines << AllGaps.new.by_all(options)
+  lines << newline_space
+
+
   # print
   lines.each {|line| if line.class == String then puts line else pp line end }
   puts "Done."
   nil
 end
 
-main()
+# main()
+
+
+
+
+
+class AllGaps
+  def by_all(options = {})
+    factors = [:race, :program_assigned, :disability]
+    student_groups = []
+    factors.each do |factor|
+      factor_values = Student.all.map {|s| s.send(factor)}.compact.uniq
+      factor_values.each do |factor_value|
+        students_with_value = Student.select {|s| s.send(factor) == factor_value }
+        student_groups << { factor: factor, label: factor_value, students: students_with_value }
+      end
+    end
+
+    measures = [:risk_level]
+    gaps = []
+    measures.each do |measure|
+      # aggregate score across all groups
+      all_students = student_groups.map {|group| group[:students] }.flatten
+      aggregate_value = measure_value_for_group(all_students, measure)
+
+      # delta per group
+      student_groups.each do |student_group|
+        group_value = measure_value_for_group(student_group[:students], measure)
+        gaps << {
+          measure: measure,
+          factor: student_group[:factor],
+          label: student_group[:label],
+          student_count: student_group[:students].size,
+          group_value: group_value,
+          aggregate_value: aggregate_value,
+          normalized_gap: normalized_gap(aggregate_value, group_value, measure)
+        }
+      end
+    end
+    gaps
+  end
+
+  def measure_value_for_group(students, measure)
+    measure_values = students.map {|s| extract_measure(s, measure) }
+    aggregate_measure(measure_values, measure)
+  end
+
+  def extract_measure(student, measure)
+    case measure
+      when :risk_level then student.try(:student_risk_level).try(:level)
+      else student.send(measure)
+    end
+  end
+
+  def aggregate_measure(all_measure_values, measure)
+    all_measure_values.reduce(:+).to_f / all_measure_values.size # mean
+  end
+
+  def normalized_gap(aggregate_value, group_value, measure)
+    (group_value - aggregate_value) / aggregate_value # percent change
+  end
+end
+pp AllGaps.new.by_all({})
+
+
+
+
+
+
+
+
+
+
