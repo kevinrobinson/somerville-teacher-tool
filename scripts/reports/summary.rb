@@ -178,7 +178,8 @@ class RiskProfile
 
   private
   def risk_level_buckets(students, options = {})
-    groups = students.group_by{|s| s.student_risk_level.level }
+    students_with_risk_levels = students.select {|s| s.try(:student_risk_level).try(:level) }.compact
+    groups = students_with_risk_levels.group_by{|s| s.student_risk_level.level }
     level_counts = groups.map {|level, ss| { level: level, count: ss.count } }
     missing_levels = [0, 1, 2, 3] - level_counts.map {|level_count| level_count[:level] }
     all_level_counts = level_counts + missing_levels.map {|missing_level| { level: missing_level, count: 0 } }
