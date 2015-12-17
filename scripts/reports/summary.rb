@@ -203,7 +203,7 @@ class RacialDistribution
     educators = Educator.find(educator_ids)
     educators.each do |educator|
       students_by_educator = Student.select {|s| s.homeroom.try(:educator_id) == educator.id }
-      output << { label: educator.email, race_buckets: risk_level_buckets(students_by_educator, options) }
+      output << { label: educator.email, race_buckets: race_buckets(students_by_educator, options) }
     end
     output
   end
