@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+body {
+  font-family: Helvetica;
+  padding: 0;
+  margin: 0;
+}
+</style>
+</head>
+
+<body>
+<div id="main"></div>
+<script src="https://fb.me/react-0.14.3.js"></script>
+<script src="https://fb.me/react-dom-0.14.3.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.23/browser.min.js"></script>
+
+<script type="text/babel">
+var fixtures = {
+  riskByHomeroom: [{"label":"all","risk_buckets":[{"level":0,"count":5,"percentage":0.17},{"level":1,"count":4,"percentage":0.13},{"level":2,"count":5,"percentage":0.17},{"level":3,"count":16,"percentage":0.53}]},{"label":"fake-fifth-grade@example.com","risk_buckets":[{"level":0,"count":2,"percentage":0.13},{"level":1,"count":3,"percentage":0.2},{"level":2,"count":2,"percentage":0.13},{"level":3,"count":8,"percentage":0.53}]}],
+  riskByRace: [{"label":"all","risk_buckets":[{"level":0,"count":5,"percentage":0.17},{"level":1,"count":4,"percentage":0.13},{"level":2,"count":5,"percentage":0.17},{"level":3,"count":16,"percentage":0.53}]},{"label":"W","risk_buckets":[{"level":0,"count":2,"percentage":0.18},{"level":1,"count":1,"percentage":0.09},{"level":2,"count":1,"percentage":0.09},{"level":3,"count":7,"percentage":0.64}]},{"label":"A","risk_buckets":[{"level":0,"count":1,"percentage":0.2},{"level":1,"count":1,"percentage":0.2},{"level":2,"count":1,"percentage":0.2},{"level":3,"count":2,"percentage":0.4}]},{"label":"B","risk_buckets":[{"level":0,"count":1,"percentage":0.14},{"level":1,"count":1,"percentage":0.14},{"level":2,"count":3,"percentage":0.43},{"level":3,"count":2,"percentage":0.29}]},{"label":"H","risk_buckets":[{"level":0,"count":1,"percentage":0.14},{"level":1,"count":1,"percentage":0.14},{"level":2,"count":0,"percentage":0.0},{"level":3,"count":5,"percentage":0.71}]}]
+};
+
+var styles = {
+  title: {
+    background: '#eee',
+    padding: 10,
+    margin: 0
+  },
+  box: {
+    width: 800,
+    height: 200,
+    border: '1px solid #ccc'
+  }
+};
+
+var App = React.createClass({
+  render: function() {
+    return (
+      <div style={{padding: 0}}>
+        <div style={styles.box}>
+          <h2 style={styles.title}>Risk level by Classroom</h2>
+          {this.renderRiskLevelsByLabel(fixtures.riskByHomeroom)}
+        </div>
+        <div style={{height: 50}} />
+        <div style={styles.box}>
+          <h2 style={styles.title}>Risk level by Race</h2>
+          {this.renderRiskLevelsByLabel(fixtures.riskByRace)}
+         </div>
+      </div>
+    );
+  },
+
+  renderRiskLevelsByLabel: function(riskLevelsByLabel) {
+    return <div>
+      {riskLevelsByLabel.map(function(group) {
+        return <div key={group.label} style={{display: 'flex', lineHeight: 1.8 }}>
+          <div style={{width: 300}}>
+            {group.label == 'all'
+              ? <b style={{borderBottom: '1px solid #ccc'}}>All classrooms</b>
+              : group.label}
+          </div>
+          <div style={{flex: 1}}>{this.renderRiskBuckets(group.risk_buckets, 400)}</div>
+         </div>;
+      }, this)}
+     </div>;
+  },
+
+  renderRiskBuckets: function(riskBuckets, maxWidth) {
+    return <div>
+      {riskBuckets.map(function(riskBucket) {
+        var width = Math.round(riskBucket.percentage * maxWidth);
+        var colorMap = {
+          0: 'rgba(0, 100, 0, 0.75)',
+          1: 'rgba(0, 100, 0, 0.25)',
+          2: 'rgba(255, 140, 0, 0.25)',
+          3: 'rgba(255, 140, 0, 0.9)'
+        };
+        var style = {
+          display: 'inline-block',
+          background: colorMap[riskBucket.level],
+          color: 'black',
+          fontWeight: 'bold',
+          outline: '1px solid #fff',
+          outlineBottom: 'none',
+          paddingLeft: 6,
+          width: width
+        };
+        return <div key={riskBucket.level} style={style}>{riskBucket.count}</div>;
+      })}
+    </div>;
+  }
+});
+
+function main() {
+  ReactDOM.render(
+    <App />,
+    document.getElementById('main')
+  );
+}
+
+main()
+</script>
+</body>
+</html>
