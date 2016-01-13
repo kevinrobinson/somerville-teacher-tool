@@ -329,6 +329,7 @@ $(function() {
 
     // page
     var SchoolOverviewPage = React.createClass({
+      displayName: 'SchoolOverviewPage',
       propTypes: {
         allStudents: React.PropTypes.arrayOf(React.PropTypes.object).isRequired,
         InterventionTypes: React.PropTypes.object.isRequired,

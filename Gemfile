@@ -27,6 +27,10 @@ gem 'handlebars_assets', '~> 0.22.0'
 gem 'jquery-rails'
 gem 'jquery-ui-rails', '~> 5.0.3'
 
+# This Gem provides React, and handles swapping between dev and production builds.
+# See config/initializers/assets.rb
+gem 'react-rails', '~> 1.5.0'
+
 # Turbolinks makes following links in your web application faster. Read more: https://github.com/rails/turbolinks
 gem 'turbolinks'
 # Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
