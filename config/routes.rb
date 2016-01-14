@@ -23,5 +23,6 @@ Rails.application.routes.draw do
   resources :schools do
     get :homerooms, on: :member
     get :overview, on: :member
+    get :star_reading, on: :member
   end
 end

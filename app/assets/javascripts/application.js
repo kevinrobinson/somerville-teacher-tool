@@ -25,6 +25,7 @@
 //= require lodash.3.10.1.min
 //= require rounded-corners
 //= require handlebars.runtime
+//= require d3.v3.min.js
 
 // provided by react-rails gem, configured in config/initializers/assets.rb
 //= require react
@@ -37,4 +38,5 @@
 // pages:
 //= require_tree ./roster
 //= require_tree ./student
+//= require ./school/theme.js
 //= require_tree ./school
