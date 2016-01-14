@@ -149,7 +149,7 @@ $(function() {
           style: { fontSize: styles.fontSize }
         },
           dom.div({ className: 'header', style: styles.header }, createEl(SlicePanels, {
-            allStudents: this.props.students,
+            allStudents: this.props.allStudents,
             students: this.filteredStudents(),
             InterventionTypes: this.props.InterventionTypes,
             filters: this.state.filters,
