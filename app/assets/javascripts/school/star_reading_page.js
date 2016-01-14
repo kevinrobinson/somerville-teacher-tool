@@ -122,12 +122,7 @@ $(function() {
                 dom.div({ style: { width: 650 } }, this.renderAllTimeStarTrends(merge(sizing, { width: 320 }))),
                 dom.div({ style: { width: 450 } }, this.renderRecentStarChanges(merge(sizing, { width: 180 }))),
                 dom.div({ style: { width: 300 } }, this.renderDeltaHistogram(sizing))
-                // dom.div({ style: { display: 'flex', flexDirection: 'column' } },
-                //   this.renderRecentStarChanges(sizing),
-                //   this.renderDeltaHistogram(sizing)
-                // )
               ),
-              this.renderHeatmap(),
               this.renderColoredGrades()
             ),
             dom.pre({
@@ -298,56 +293,6 @@ $(function() {
         }));
 
         return this.renderLineChartWithTable('All-time scores', students, assessments, options);
-
-
-
-        var dateRange = d3.extent(assessments, function(d) { return new Date(d.date_taken); });
-        var x = d3.time.scale().domain(dateRange).range([0, width]);
-        var y = d3.scale.linear().domain([0, 100]).range([height, 0]);
-        var color = d3.scale.linear().domain([-50, 0, 50]).range(['red','white','blue']);
-        var thickness = d3.scale.linear().domain([-50, 0, 50]).range([3, 0, 3]);
-
-        var lineGenerator = d3.svg.line()
-          .x(function(d) { return x(new Date(d.date_taken)); })
-          .y(function(d) { return y(d.percentile_rank); })
-          .interpolate('basis');
-
-        return dom.div({},
-          this.renderTitleWithSummary({
-            title: 'All-time scores',
-            dateRange: dateRange,
-            students: students,
-            assessments: assessments
-          }),
-          dom.div({ style: { display: 'flex' } },
-            dom.div({},
-              dom.svg( {width: width, height: height },
-                dom.rect({
-                  x: 0,
-                  y: 0,
-                  width: width,
-                  height: height,
-                  stroke: '#eee',
-                  fill: 'none'
-                }),
-                students.map(function(student) {
-                  var results = this.filteredResults(student);
-                  if (results.length === 0) return null;
-                  return dom.path({
-                    key: student.id,
-                    stroke: color(this.allTimeRange(student)),
-                    strokeWidth: thickness(this.allTimeRange(student)),
-                    fill: 'none',
-                    d: lineGenerator(results),
-                    onMouseEnter: this.onStudentHover.bind(this, student),
-                    onMouseLeave: this.onStudentHover.bind(this, null)
-                  })
-                }, this)
-              )
-            ),
-            this.greatestChanges(students, color)
-          )
-        );
       },
 
       renderColoredGrades: function() {
@@ -384,61 +329,6 @@ $(function() {
                   fill: color(_.isNaN(assessment.student.grade) ? 0 : assessment.student.grade),
                   onMouseEnter: this.onStudentHover.bind(this, assessment.student),
                   onMouseLeave: this.onStudentHover.bind(this, null)
-                })
-              }, this)
-            )
-          )
-        );
-      },
-
-      renderHeatmap: function() {
-        var assessments = _.flatten(this.filteredStudents().map(function(student) {
-          return student.star_reading_results.filter(function(result) {
-            return result.percentile_rank != null;
-          });
-        }));
-
-        var bucketSize = 10;
-        var dateBucketSize = 1000 * 60 * 60 * 24 * 7;
-        var buckets = _.pairs(_.groupBy(assessments, function(result) {
-          return [
-            Math.floor(new Date(result.date_taken).getTime() / dateBucketSize),
-            Math.floor(result.percentile_rank / bucketSize)
-          ].join(':');
-        }));
-
-        var width = 400;
-        var height = 400;
-
-        var dateRange = d3.extent(assessments, function(d) { return new Date(d.date_taken); });
-        var x = d3.time.scale().domain(dateRange).range([0, width]);
-        var y = d3.scale.linear().domain([0, 100 / bucketSize]).range([height, 0]);
-        var color = d3.scale.linear().domain([0, 50]).range(['white', 'red']);
-        
-        return dom.div({},
-          this.renderTitle('All-time STAR math scores, heatmap'),
-          dom.div({}, 'Assessments: ', assessments.length),
-          dom.div({},
-            dom.svg( {width: width, height: height },
-              dom.rect({
-                x: 0,
-                y: 0,
-                width: width,
-                height: height,
-                stroke: '#eee',
-                fill: 'none'
-              }),
-              buckets.map(function(bucket) {
-                var slots = bucket[0].split(':');
-                var dateBucket = new Date(slots[0] * dateBucketSize);
-                var percentileBucket = slots[1];
-                return dom.rect({
-                  key: bucket[0],
-                  x: x(dateBucket),
-                  y: y(percentileBucket),
-                  width: Math.max(width / dateBucketSize, 5),
-                  height: height / bucketSize,
-                  fill: color(bucket[1].length)
                 })
               }, this)
             )
