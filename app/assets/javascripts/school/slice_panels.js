@@ -135,6 +135,7 @@
     propTypes: {
       filters: React.PropTypes.arrayOf(React.PropTypes.object).isRequired,
       students: React.PropTypes.arrayOf(React.PropTypes.object).isRequired,
+      allStudents: React.PropTypes.arrayOf(React.PropTypes.object).isRequired,
       InterventionTypes: React.PropTypes.object.isRequired,
       onFilterToggled: React.PropTypes.func.isRequired
     },
@@ -260,7 +261,10 @@
           limit: 5
         }),
         this.renderSimpleTable('Program', 'program_assigned', { limit: 3 }),
-        this.renderSimpleTable('Homeroom', 'homeroom_id', { limit: 3 })         // TODO(kr or as) homeroom names
+        this.renderSimpleTable('Homeroom', 'homeroom_id', {
+          limit: 3,
+          students: this.props.students // these items won't be static
+        })         // TODO(kr or as) homeroom names
       );
     },
 
@@ -274,7 +278,7 @@
     },
 
     interventionItems: function() {
-      var students = this.props.students;
+      var students = this.props.allStudents;
       var allInterventions = _.compact(_.flatten(_.pluck(students, 'interventions')));
       var allInterventionTypes = _.unique(allInterventions.map(function(intervention) {
         return parseInt(intervention.intervention_type_id, 10);
@@ -292,7 +296,7 @@
 
     renderGradeTable: function() {
       var key = 'grade';
-      var uniqueValues = _.compact(_.unique(_.pluck(this.props.students, key)));
+      var uniqueValues = _.compact(_.unique(_.pluck(this.props.allStudents, key)));
       var items = uniqueValues.map(function(value) {
         return this.createItem(value, Filters.Equal(key, value));
       }, this);
@@ -317,7 +321,7 @@
     },
 
     renderYearsEnrolled: function() {
-      var uniqueValues = _.compact(_.unique(this.props.students.map(function(student) {
+      var uniqueValues = _.compact(_.unique(this.props.allStudents.map(function(student) {
         return Math.floor((new Date() - new Date(student.registration_date)) / (1000 * 60 * 60 * 24 * 365));
       })));
       var items = uniqueValues.map(function(value) {
@@ -339,14 +343,14 @@
       var itemsWithNull = (_.any(uniqueValues, _.isNull))
         ? items.concat(this.createItem('None', Filters.Null(key)))
         : items;
-      var students = this.props.students;
+      var students = this.props.allStudents;
       return _.sortBy(itemsWithNull, function(item) {
         return -1 * students.filter(item.filter.filterFn).length;
       });
     },
 
     renderSimpleTable: function(title, key, props) {
-      var uniqueValues = _.unique(_.pluck(this.props.students, key));
+      var uniqueValues = _.unique(_.pluck(props.students || this.props.allStudents, key));
       var items = this.createItemsFromValues(key, uniqueValues);
       return this.renderTable(merge(props || {}, {
         title: title,
