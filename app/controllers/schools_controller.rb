@@ -29,18 +29,17 @@ class SchoolsController < ApplicationController
     time_now = Time.now
     @serialized_data = {
       :students_with_star_reading => students_with_star_reading(time_now),
-      :current_school_year => DateToSchoolYear.new(time_now).convert,
       :intervention_types => InterventionType.all
     }
   end
 
   def overview
     @use_fixtures = true      # Toggle between using demo development data
-                               # and real data loaded in as a JSON fixture
+                              # and real data loaded in as a JSON fixture
 
     unless @use_fixtures
       @serialized_data = {
-        :students => overview_students(Time.new),
+        :students => overview_student_hashes(Time.new),
         :intervention_types => InterventionType.all
       }
     else
@@ -71,22 +70,16 @@ class SchoolsController < ApplicationController
   private
   def students_with_star_reading(time_now)
     use_fixtures = true
-
     return IO.read("#{Rails.root}/data/students_with_star_reading.json") if use_fixtures
     
-    # for generating data, or for   
-    last_school_year = DateToSchoolYear.new(time_now - 1.year).convert
-    sliceable_student_hashes(Student.includes(:assessments)) do |student|
+    sliceable_student_hashes(Student.all.includes(:assessments)) do |student|
        student.as_json.merge(star_reading_results: s.star_reading_results.as_json)
     end
   end
 
-  # remove sensitive-ish fields
-  def clean_student_hash(student_hash)
-    student_hash.except(:address).merge({
-      first_name: ["Aladdin", "Chip", "Daisy", "Mickey", "Minnie", "Donald", "Elsa", "Mowgli", "Olaf", "Pluto", "Pocahontas", "Rapunzel", "Snow", "Winnie"].sample,
-      last_name: ["Disney", "Duck", "Kenobi", "Mouse", "Pan", "Poppins", "Skywalker", "White"].sample
-    })
+  def overview_student_hashes(time_now)
+    current_school_year = DateToSchoolYear.new(time_now).convert
+    sliceable_student_hashes(Student.all)
   end
 
   # Takes a lazy collection that has any eager includes needed, and yields each `student`
@@ -96,6 +89,7 @@ class SchoolsController < ApplicationController
     students_assoc.includes(:interventions, :discipline_incidents).map do |student|
       yield(student).merge({
         :interventions => student.interventions.as_json,
+        :student_risk_level => student_risk_level.as_json,
         :discipline_incidents_count => student.discipline_incidents.select do |incident|
           incident.school_year == current_school_year
         end.size
@@ -103,15 +97,11 @@ class SchoolsController < ApplicationController
     end
   end
 
-  def overview_students(time_now)
-    current_school_year = DateToSchoolYear.new(time_now).convert
-    Student.includes(:interventions, :discipline_incidents).map do |student|
-      student.as_json.merge({
-        :interventions => student.interventions.as_json,
-        :discipline_incidents_count => student.discipline_incidents.select do |incident|
-          incident.school_year == current_school_year
-        end.size
-      })
-    end
+  # remove sensitive-ish fields
+  def clean_student_hash(student_hash)
+    student_hash.except(:address).merge({
+      first_name: ["Aladdin", "Chip", "Daisy", "Mickey", "Minnie", "Donald", "Elsa", "Mowgli", "Olaf", "Pluto", "Pocahontas", "Rapunzel", "Snow", "Winnie"].sample,
+      last_name: ["Disney", "Duck", "Kenobi", "Mouse", "Pan", "Poppins", "Skywalker", "White"].sample
+    })
   end
 end

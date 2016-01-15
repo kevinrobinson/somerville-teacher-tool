@@ -58,6 +58,14 @@
       if (parts[0] === 'intervention_type') return Filters.InterventionType(parts[1]);
       if (parts[0] === 'years_enrolled') return Filters.YearsEnrolled(parseFloat(parts[1]));
       return null;
+    },
+
+    // Returns a list of Filters
+    parseFiltersHash: function(hash) {
+      var pieces = _.compact(hash.slice(1).split('&'));
+      return _.compact(pieces.map(function(piece) {
+        return Filters.createFromIdentifier(window.decodeURIComponent(piece));
+      }));
     }
   };
 })();
