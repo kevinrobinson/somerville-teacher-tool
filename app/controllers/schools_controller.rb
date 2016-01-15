@@ -25,19 +25,24 @@ class SchoolsController < ApplicationController
     @top_mcas_ela_concerns = homeroom_queries.top_mcas_ela_concerns.first(limit)
   end
 
+  # To build local fixtures from production data: 
+  # copy body of controller code into Rails console, run the code in the body of this method,
+  # print it as JSON and then save it in the /data/schools/star_reading
   def star_reading
+    use_fixtures = true      # Toggle between using demo development data
+                             # and real data loaded in as a JSON fixture
     time_now = Time.now
     @serialized_data = {
-      :students_with_star_reading => students_with_star_reading(time_now),
+      :students_with_star_reading => students_with_star_reading(time_now, use_fixtures: use_fixtures),
       :intervention_types => InterventionType.all
     }
   end
 
   def overview
-    @use_fixtures = true      # Toggle between using demo development data
-                              # and real data loaded in as a JSON fixture
+    use_fixtures = true      # Toggle between using demo development data
+                             # and real data loaded in as a JSON fixture
 
-    unless @use_fixtures
+    unless use_fixtures
       @serialized_data = {
         :students => overview_student_hashes(Time.new),
         :intervention_types => InterventionType.all
@@ -68,28 +73,27 @@ class SchoolsController < ApplicationController
   end
 
   private
-  def students_with_star_reading(time_now)
-    use_fixtures = true
-    return IO.read("#{Rails.root}/data/students_with_star_reading.json") if use_fixtures
+  def students_with_star_reading(time_now, options = {})
+    return IO.read("#{Rails.root}/data/schools/star_reading.json") if options[:use_fixtures]
     
-    sliceable_student_hashes(Student.all.includes(:assessments)) do |student|
-       student.as_json.merge(star_reading_results: s.star_reading_results.as_json)
+    sliceable_student_hashes(time_now, Student.all.includes(:assessments)) do |student|
+       student.as_json.merge(star_reading_results: student.star_reading_results.as_json)
     end
   end
 
   def overview_student_hashes(time_now)
-    current_school_year = DateToSchoolYear.new(time_now).convert
-    sliceable_student_hashes(Student.all)
+    sliceable_student_hashes(time_now, Student.all)
   end
 
   # Takes a lazy collection that has any eager includes needed, and yields each `student`
   # to a block that returns a hash representation of the student and data from the eager
   # includes.
-  def sliceable_student_hashes(students_assoc)
+  def sliceable_student_hashes(time_now, students_assoc)
+    current_school_year = DateToSchoolYear.new(time_now).convert
     students_assoc.includes(:interventions, :discipline_incidents).map do |student|
       yield(student).merge({
         :interventions => student.interventions.as_json,
-        :student_risk_level => student_risk_level.as_json,
+        :student_risk_level => student.student_risk_level.as_json,
         :discipline_incidents_count => student.discipline_incidents.select do |incident|
           incident.school_year == current_school_year
         end.size
