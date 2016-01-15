@@ -426,7 +426,7 @@ $(function() {
           return this.clamp(bucketDomain, Math.floor(result.delta / bucketSize) * bucketSize);
         }, this));
         var maxCount = d3.max(buckets, function(bucket) { return bucket[1].length; });
-        var median = d3.median(_.pluck(studentsWithDeltas, 'delta'));
+        var median = d3.median(_.pluck(studentsWithDeltas, 'delta')) || 0;
 
         var x = d3.time.scale().domain(bucketDomain).range([0, width]);
         var barHeight = d3.scale.linear().domain([0, maxCount]).range([0, height]);

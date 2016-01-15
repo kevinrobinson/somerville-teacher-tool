@@ -35,7 +35,7 @@ class SchoolsController < ApplicationController
   end
 
   def overview
-    @use_fixtures = false      # Toggle between using demo development data
+    @use_fixtures = true      # Toggle between using demo development data
                                # and real data loaded in as a JSON fixture
 
     unless @use_fixtures
@@ -61,7 +61,10 @@ class SchoolsController < ApplicationController
       # to remove names is useful when working in a semi-public space.
 
       fixture_path = "#{Rails.root}/data/cleaned_all_ss.json"
-      @serialized_data = IO.read(fixture_path).html_safe if File.exist? fixture_path
+      @serialized_data = {
+        :students => JSON.parse(IO.read(fixture_path)),
+        :intervention_types => InterventionType.all
+      }
     end
   end
 
