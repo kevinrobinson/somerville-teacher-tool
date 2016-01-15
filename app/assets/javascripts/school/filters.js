@@ -1,7 +1,7 @@
 (function() {
   // Define filter operations
   window.shared || (window.shared = {});
-  window.shared.Filters = {
+  window.shared.Filters = Filters = {
     Range: function(key, range) {
       return {
         identifier: ['range', key, range[0], range[1]].join(':'),
