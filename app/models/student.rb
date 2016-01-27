@@ -16,6 +16,7 @@ class Student < ActiveRecord::Base
       interventions: interventions.as_json,
       absences_count: most_recent_school_year.absences.count,
       tardies_count: most_recent_school_year.tardies.count,
+      school_name: try(:school).try(:name),
       homeroom_name: try(:homeroom).try(:name),
       discipline_incidents_count: most_recent_school_year.discipline_incidents.count
     })
