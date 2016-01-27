@@ -31,7 +31,6 @@ class SchoolsController < ApplicationController
     # Toggle between using demo development data and real data loaded in as a JSON fixture
     use_fixtures = false
     students_with_star_reading = if use_fixtures then DevelopmentFixtures.new.students_star_reading else students_with_star_reading() end
-
     @serialized_data = {
       :students_with_star_reading => students_with_star_reading,
       :intervention_types => InterventionType.all
