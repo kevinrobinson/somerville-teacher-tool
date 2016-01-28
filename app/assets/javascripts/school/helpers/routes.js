@@ -2,7 +2,7 @@
   // Routing functions
   window.shared || (window.shared = {});
   
-  var baseUrl = '';  //'https://somerville-teacher-tool.herokuapp.com'; // can use this for local hacking
+  var baseUrl = ''; // can set this to production to prototype exploratory views
   window.shared.Routes = {
     student: function(id) {
       return baseUrl + '/students/' + id;
