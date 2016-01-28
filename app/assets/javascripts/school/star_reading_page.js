@@ -216,7 +216,7 @@ $(function() {
       renderRecentStarChanges: function(options) {
         var students = this.studentsWithRecentAssessments();
         var assessments = _.flatten(_.pluck(students, 'star_reading_results'));
-        return this.renderLineChartWithTable('Student progress, since last assessment', 'Change in percentile rank', students, assessments, options);
+        return this.renderLineChartWithTable('Student progress, recent assessments', 'Change in percentile rank', students, assessments, options);
       },
 
       renderLineChartWithTable: function(title, description, students, assessments, options) {
@@ -564,7 +564,7 @@ $(function() {
 
         return dom.div({},
           this.renderTitleWithSummary({
-            title: 'Group progress, since last assessment',
+            title: 'Group progress, recent assessments',
             description: 'Distribution of change in percentile rank',
             dateRange: dateRange,
             students: studentsWithDeltas,
