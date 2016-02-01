@@ -4,6 +4,17 @@ $(function() {
   // ProfileController and InterventionsController, which own their respective tabs.
   if ($('body').hasClass('students') && $('body').hasClass('show')) {
 
+    var currentEducator = $('#current-educator-data').data().currentEducator;
+    var homeroom = $('#homeroom-data').data().homeroom;
+    var MixpanelUtils = window.shared.MixpanelUtils;
+    MixpanelUtils.registerUser(currentEducator);
+    MixpanelUtils.track('PAGE_VISIT', {
+      page_key: 'STUDENT_PROFILE_PAGE',
+      homeroom_id: homeroom.id,
+      homeroom_slug: homeroom.slug,
+      homeroom_grade: homeroom.grade
+    });
+
     // Risk level tooltip
     var risk_level_tooltip = $('#risk-level-tooltip-template').html();
     var rendered = Mustache.render(risk_level_tooltip);

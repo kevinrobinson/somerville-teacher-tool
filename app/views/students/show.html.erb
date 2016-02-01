@@ -112,6 +112,8 @@
   <% # This is data that the JS code will read in and render %>
   <%= tag("div", id: "chart-data", data: @chart_data) %>
   <%= tag("div", id: "chart-start", data: { start: @chart_start }) %>
+  <%= tag("div", id: "homeroom-data", data: { homeroom: @student.homeroom}) %>
+  <%= tag("div", id: "current-educator-data", data: { current_educator: current_educator}) %>
   <div id="interventions-controller-data" class="hidden">
     <%= {
       student_id: @student.id,
