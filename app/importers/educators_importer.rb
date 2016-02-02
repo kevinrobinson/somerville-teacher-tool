@@ -1,5 +1,9 @@
 class EducatorsImporter
 
+  def initialize
+    @school_ids_dictionary = School.all.map { |school| [school.local_id, school.id] }.to_h
+  end
+
   def remote_file_name
     # Expects a CSV with the following headers, transformed to symbols by CsvTransformer during import:
     #
@@ -13,36 +17,13 @@ class EducatorsImporter
   end
 
   def import_row(row)
-    educator = Educator.where(local_id: row[:local_id]).first_or_create!
+    homeroom = Homeroom.find_by_name!(row[:homeroom]) if row[:homeroom].present?
+    educator = EducatorRow.new(row, @school_ids_dictionary).build
 
-    # Set homeroom
-    update_homeroom(educator, row[:homeroom]) if row[:homeroom]
+    return unless homeroom.present? || educator.admin?
 
-    # Set admin status
-    admin_status = (row[:staff_type].present? && row[:staff_type].downcase == "administrator")
-
-    # Look up school ID
-    school_local_id = row[:school_local_id]
-    school_id = SchoolLocalIdToAppId.instance.ids_dictionary[school_local_id] if school_local_id.present?
-
-    # Set staff_type, name, and IDs
-
-    # There are many ways to set attributes in ActiveRecord.
-    # 'update': saves to db, runs validations, runs callbacks, resets updated_at
-
-    educator.update(
-      state_id: row[:state_id],
-      local_id: row[:local_id],
-      full_name: row[:full_name],
-      staff_type: row[:staff_type],
-      admin: admin_status,
-      school_id: school_id
-    )
-  end
-
-  def update_homeroom(educator, homeroom_name)
-    homeroom = Homeroom.find_by_name!(homeroom_name)
-    homeroom.update(educator: educator) if homeroom
+    educator.save!
+    homeroom.update(educator: educator) if homeroom.present?
   end
 
 end

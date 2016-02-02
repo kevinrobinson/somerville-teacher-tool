@@ -1,5 +1,4 @@
 (function(root) {
-
   window.shared || (window.shared = {});
   var Filters = window.shared.Filters;
   var Routes = window.shared.Routes;
@@ -16,6 +15,8 @@
   };
 
   var SchoolOverviewPage = React.createClass({
+    displayName: 'SchoolOverviewPage',
+
     propTypes: {
       allStudents: React.PropTypes.arrayOf(React.PropTypes.object).isRequired,
       InterventionTypes: React.PropTypes.object.isRequired,
@@ -28,7 +29,6 @@
 
     componentDidMount: function() {
       $(document).on('keydown', this.onKeyDown);
-      // window.onpopstate = this.onPopState;
     },
 
     componentWillUnmount: function() {
@@ -278,11 +278,14 @@
         ].join(',');
       });
       var csvText = [header].concat(rows).join('\n');
+      var dateText = moment().format('YYYY-MM-DD');
+      var filtersText = (this.activeFiltersIdentifier().length === 0) ? '' : ' (' + this.activeFiltersIdentifier() + ')';
+      var filename = 'Students on ' + dateText + filtersText + '.csv';
 
       return dom.a({
         href: 'data:attachment/csv,' + encodeURIComponent(csvText),
         target: '_blank',
-        download: 'student.csv',
+        download: filename,
         style: {
           paddingLeft: 20,
           fontSize: styles.fontSize
@@ -297,6 +300,5 @@
     },
   });
 
-  root.SchoolOverviewPage = SchoolOverviewPage;
-
+  window.shared.SchoolOverviewPage = SchoolOverviewPage;
 })(window)

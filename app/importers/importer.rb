@@ -16,7 +16,7 @@ class Importer
     @client = options[:client]
 
     # Optional
-    @school_scope = options[:school_scope]
+    @school_scope = options[:school_scope]    # Array of school local IDs
     @recent_only = options[:recent_only]
     @first_time = options[:first_time]
 
@@ -35,17 +35,17 @@ class Importer
 
   def start_import(data)
     # Set up progress bar
-    puts; n = 0; progress_bar = ProgressBar.new(data.size, @current_file_importer.remote_file_name)
+    puts; n = 0; progress_bar = ProgressBar.new(data.size, @current_file_importer.remote_file_name) unless Rails.env.test?
 
     data.each do |row|
       row.delete_if { |key, value| key.blank? }
       check_scope_and_import_row(row)
-      n += 1; print progress_bar.current_status(n)
+      n += 1; print progress_bar.current_status(n) unless Rails.env.test?
     end
   end
 
   def check_scope_and_import_row(row)
-    return check_elementary_scope(row) if @school_scope == 'ELEM'
+    return check_elementary_scope(row) if @school_scope == ['ELEM']
     return check_school_scope(row) if @school_scope.present?
     @current_file_importer.import_row(row)
   end
@@ -60,7 +60,7 @@ class Importer
   end
 
   def check_school_scope(row)
-    return if @school_scope != row[:school_local_id]
+    return unless row[:school_local_id].in? @school_scope
     @current_file_importer.import_row(row)
   end
 

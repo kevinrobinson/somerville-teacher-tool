@@ -7,11 +7,11 @@ FactoryGirl.define do
   factory :student do
     local_id
     association :homeroom
-    after(:create) do |student|
-      # Assume each student has a StudentRiskLevel object created
-      # on initial import (and updated with a daily scheduled job).
-      # If student risk levels are not being created, we want to throw errors.
-      FactoryGirl.create(:student_risk_level, student: student)
+
+    trait :with_risk_level do
+      after(:create) do |student|
+        FactoryGirl.create(:student_risk_level, student: student)
+      end
     end
 
     trait :low_income do
@@ -101,9 +101,6 @@ FactoryGirl.define do
     factory :student_with_full_name do
       first_name Faker::Name.first_name
       last_name Faker::Name.last_name
-    end
-    factory :student_named_juan do
-      first_name "Juan"
     end
     factory :sped_student do
       program_assigned "Sp Ed"

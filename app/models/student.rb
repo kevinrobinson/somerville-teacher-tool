@@ -11,21 +11,8 @@ class Student < ActiveRecord::Base
   validates_uniqueness_of :local_id
   after_create :update_student_school_years
 
-  def serialized_data
-    as_json.merge({
-      interventions: interventions.as_json,
-      absences_count: most_recent_school_year.absences.count,
-      tardies_count: most_recent_school_year.tardies.count,
-      school_name: try(:school).try(:name),
-      homeroom_name: try(:homeroom).try(:name),
-      discipline_incidents_count: most_recent_school_year.discipline_incidents.count
-    })
-  end
-
-  def self.serialized_data
-    includes(:interventions).map do |student|
-      student.serialized_data
-    end
+  def self.with_school
+    where.not(school: nil)
   end
 
   ## STUDENT ASSESSMENT RESULTS ##
